@@ -6,7 +6,8 @@ CC				=		g++
 RM				=		rm -f
 MKDIR			=		mkdir -p
 
-CFLAGS			:= 		-Wall -Wextra -std=c++14 -Iinc/
+CFLAGS			:= 		-Wall -Wextra -std=c++14 -Iinc/ -ggdb
+LDFLAGS			:=		-ldwarf -lelf
 
 NAME			=		geuldeboua
 
@@ -19,8 +20,8 @@ OBJS			=		${SRCS:${SRC_DIR}/%.cpp=${OBJ_DIR}/%.o}
 all				:		${NAME}
 
 ${NAME}			:		${OBJS}
-						${CC} ${CFLAGS} -o ${NAME} ${OBJS}
-						@echo 'Yellow builded'
+						${CC} ${CFLAGS} -o ${NAME} ${OBJS} ${LDFLAGS}
+						@echo 'LAGEULDEBOUA build'
 
 clean			:
 						${RM} ${OBJS}
