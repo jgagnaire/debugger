@@ -11,15 +11,21 @@ GueulDeBoua::frok() {
 
 void
 GueulDeBoua::debugger(int & status) {
-        int count = 0;
+        int     count = 0;
+        struct user_regs_struct regs;
 
         while (WIFSTOPPED(status)) {
+            if (::ptrace(PTRACE_GETREGS, _child_pid, 0, &regs) < 0) {
+                std::cerr << "ptrace" << std::endl; 
+            }
+            std::cout << regs.rip << std::endl;
             if (::ptrace(PTRACE_SINGLESTEP, _child_pid, 0, 0) < 0) {
                 std::cerr << "ptrace" << std::endl;
             }
             ++count;
             wait(&status);
         }
+
         std::cout << "this program executed "
             << count
             << " instructions."

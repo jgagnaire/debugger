@@ -4,7 +4,7 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <sys/ptrace.h>
-
+# include <sys/user.h>
 
 # include <string>
 # include <iostream>
@@ -23,3 +23,4 @@ class GueulDeBoua {
         void        frok();
         void        debugger(int & status);
 };
+
