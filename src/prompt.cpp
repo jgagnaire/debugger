@@ -62,7 +62,8 @@ void backtrace_fct(std::string const &)
 #define CNF "commande inexistante, tape help si t'es perdu"
 
 
-int main(int, char **b)
+/*
+int         main(int, char *b[])
 {
   if (!b[1])
     {
@@ -124,3 +125,4 @@ int main(int, char **b)
     }
   return 0;
 }
+*/
