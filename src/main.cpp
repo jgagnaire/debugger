@@ -1,19 +1,83 @@
 
+#include <stdlib.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <stdexcept>
 #include <string>
 #include <iostream>
+#include <elf.h>
+#include <map>
 
 int file_fd;
+Elf64_Ehdr header;
+Elf64_Shdr *section_header_table;
+std::map<std::string, Elf64_Sym> symaddr_map;
 
-unsigned long get_sym_addr(std::string const &sym_name, int *error)
+Elf64_Word get_sym_addr(std::string const &sym_name, int *error)
 {
-  fstat();
-  (void)sym_name,
-  (void)error;
-  *error = 0;
-  return 0;
+  if (!symaddr_map.empty())
+    goto ret_label;
+
+  if (::read(file_fd, &header, sizeof(Elf64_Ehdr)) <= 0
+      || !header.e_shoff
+      || ::lseek(file_fd, header.e_shoff, SEEK_SET) == -1
+      || !(section_header_table = (Elf64_Shdr *)::calloc(header.e_shnum, sizeof(Elf64_Shdr))))
+    return (std::cout << "fichier invalide ou impossible d'allouer de la memoire" << std::endl, *error = -1, 0);
+
+  long save_symtab_idx, save_strtab_idx;
+
+  save_symtab_idx = 0, save_strtab_idx = 0;
+  for (unsigned long i = 0;i < header.e_shnum;++i)
+    {
+      if (::read(file_fd, &section_header_table[i], sizeof(Elf64_Shdr)) <= 0)
+	return (std::cout << "fichier invalide" << std::endl, *error = -1, 0);
+      switch (section_header_table[i].sh_type)
+	{
+	case SHT_SYMTAB:
+	  save_symtab_idx = i;
+	  break ;
+	case SHT_STRTAB:
+	  save_strtab_idx = i;
+	  break ;
+	default :
+	  break ;
+	}
+    }
+      
+
+  char *strtab;
+
+  if (!(strtab = (char *)::calloc(section_header_table[save_strtab_idx].sh_size, 1))
+      || ::lseek(file_fd, section_header_table[save_strtab_idx].sh_offset, SEEK_SET) == -1
+      || ::read(file_fd, strtab, section_header_table[save_strtab_idx].sh_size) <= 0)
+    return (std::cout << "fichier invalide ou impossible d'allouer de la memoire" << std::endl, *error = -1, 0);
+
+
+  Elf64_Sym *symtab;
+
+  if (save_symtab_idx == -1 || save_strtab_idx == -1
+      || ::lseek(file_fd, section_header_table[save_symtab_idx].sh_offset, SEEK_SET) == -1
+      || !(symtab = (Elf64_Sym *)::calloc(section_header_table[save_symtab_idx].sh_size / sizeof(Elf64_Sym), sizeof(Elf64_Sym))))
+    return (std::cout << "fichier invalide ou impossible d'allouer de la memoire" << std::endl, *error = -1, 0);
+
+  for (unsigned long i = 0;i < (section_header_table[save_symtab_idx].sh_size / sizeof(Elf64_Sym));++i)
+    {
+      if (::read(file_fd, &symtab[i], sizeof(Elf64_Sym)) <= 0)
+	return (std::cout << "fichier invalide" << std::endl, *error = -1, 0);
+      symaddr_map[std::string(&strtab[symtab[i].st_name])] = symtab[i];
+    }
+  ::free(symtab);
+  ::free(strtab);
+
+ ret_label:
+  try {
+    return (*error = 0, symaddr_map.at(sym_name).st_value);
+  }
+  catch (std::exception const &) {
+    return (std::cout << "file une fonction qui existe, ca marchera probablement un peu mieux" << std::endl, *error = -1, 0);
+  }
 }
 
 
@@ -33,21 +97,17 @@ void break_fct(std::string const &cmd)
   unsigned long i, symaddr;
 
   if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() - 1)
-    {
-      std::cout << "file le nom de la fonction à laquelle tu veux breaker" << std::endl;
-      return ;
-    }
+    return ((void)(std::cout << "file le nom de la fonction à laquelle tu veux breaker" << std::endl));
 
   int error;
 
-  symaddr = get_sym_addr(cmd.substr(i), &error);  
-  (void)symaddr;
+  std::cout << "l'adresse à laquelle on veut mettre un point de cassure est "
+	    << std::hex
+	    << (symaddr = get_sym_addr(cmd.substr(i + 1), &error))
+	    << std::endl;
   if (error == -1)
-    {
-      std::cout << "donne une fonction qui existe, ça marchera mieux" << std::endl;
-      return ;
-    }
-  //set_breakpoint(symaddr);
+    return ;
+  // set_breakpoint(symaddr);
 }
 
 void delete_fct(std::string const &)
@@ -98,16 +158,10 @@ void backtrace_fct(std::string const &)
 int         main(int, char *b[])
 {
   if (!b[1])
-    {
-      std::cout << USAGE << std::endl;
-      return -1;
-    }
+    return (std::cout << USAGE << std::endl, -1);
 
   if ((file_fd = ::open(b[1], O_RDONLY, 0644)) == -1)
-    {
-      std::cout << "impossible d'ouvrir le fichier" << std::endl;
-      return -1;
-    }
+    return (std::cout << "impossible d'ouvrir le fichier" << std::endl, -1);
 
   static const std::string cmd_tab[CMD_NB] = {"run", "kill", "quit", "set",
 					      "break", "delete", "print",
@@ -130,7 +184,7 @@ int         main(int, char *b[])
 	  run_fct(tmp);
 	  break ;
 	case QUIT_CMD:
-	  return 0;
+	  return (0);
 	case KILL_CMD:
 	  set_fct(tmp);
 	  break ;
@@ -160,6 +214,5 @@ int         main(int, char *b[])
 	  break ;
 	}
     }
-  std::cout << std::endl;
-  return 0;
+  return (std::cout << std::endl, 0);
 }
