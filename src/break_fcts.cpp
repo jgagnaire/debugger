@@ -1,7 +1,7 @@
 #include "break_fcts.hh"
 
 void
-set_breakpoint(uint64_t addr) {
+set_breakpoint(int32_t _child_pid, uint64_t addr) {
     uint64_t    data = 0;
     _data = ::ptrace(PTRACE_PEEKTEXT, _child_pid, addr, 0);
     _breakpoint_map[addr] = _data;
@@ -11,7 +11,7 @@ set_breakpoint(uint64_t addr) {
 }
 
 int
-unset_breakpoint(uint64_t addr) {
+unset_breakpoint(int32_t _child_pid, uint64_t addr) {
     uint64_t    to_restore;
     // try to find the addr in the breakpoint map
     if (_breakpoint_map.find(addr) == _breakpoint_map.end()) {

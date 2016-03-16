@@ -5,6 +5,8 @@
 # include <sys/wait.h>
 # include <sys/ptrace.h>
 # include <sys/user.h>
+# include <sys/reg.h>
+# include <stdint.h>
 # include <errno.h>
 # include <string.h>
 
