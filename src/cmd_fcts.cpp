@@ -30,7 +30,7 @@ void break_fct(std::string const &cmd)
   if (error == -1)
     return ;
   std::cout << "l'adresse à laquelle on veut mettre un point de cassure est "
-            << std::hex << symaddr << std::endl;
+            << "0x" << std::hex << symaddr << std::endl;
   set_breakpoint(symaddr);
 }
 
