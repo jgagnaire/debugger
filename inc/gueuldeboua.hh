@@ -25,15 +25,14 @@
 # define HELP "commandes possibles: run, kill, quit, set, break, delete, print, printreg, setreg, backtrace, help"
 
 Elf64_Word get_sym_addr(std::string const &, int *);
-void set_breakpoint(unsigned long);
 
-void run_fct(std::string const &);
-void set_fct(std::string const &);
-void break_fct(std::string const &);
-void delete_fct(std::string const &);
-void print_fct(std::string const &);
-void printreg_fct(std::string const &);
-void setreg_fct(std::string const &);
-void backtrace_fct(std::string const &);
+void run_fct(int32_t _child_pid, std::string const&);
+void set_fct(int32_t _child_pid, std::string const&);
+void break_fct(int32_t _child_pid, std::string const&);
+void delete_fct(int32_t _child_pid, std::string const&);
+void print_fct(int32_t _child_pid, std::string const&);
+void printreg_fct(int32_t _child_pid, std::string const&);
+void setreg_fct(int32_t _child_pid, std::string const&);
+void backtrace_fct(int32_t _child_pid, std::string const&);
 
 #endif /* !GUEULDEBOUA_H_ */

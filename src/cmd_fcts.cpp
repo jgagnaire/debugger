@@ -3,18 +3,19 @@
 #include <string>
 
 #include "gueuldeboua.hh"
+#include "debugger.hh"
 
-void run_fct(std::string const &)
+void run_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [run] (et lekudlashat aussi)" << std::endl;
 }
 
-void set_fct(std::string const &)
+void set_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [set] (et leusex aussi)" << std::endl;
 }
 
-void break_fct(std::string const &cmd)
+void break_fct(int32_t _child_pid, std::string const& cmd)
 {
   unsigned long i;
   unsigned long symaddr;
@@ -31,30 +32,30 @@ void break_fct(std::string const &cmd)
     return ;
   std::cout << "l'adresse à laquelle on veut mettre un point de cassure est "
             << "0x" << std::hex << symaddr << std::endl;
-  set_breakpoint(symaddr);
+  set_breakpoint(_child_pid, symaddr);
 }
 
-void delete_fct(std::string const &)
+void delete_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [delete] (et lekouy aussi)" << std::endl;
 }
 
-void print_fct(std::string const &)
+void print_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [print] (et leuzobe aussi)" << std::endl;
 }
 
-void printreg_fct(std::string const &)
+void printreg_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [printreg] (et leuphyon aussi)" << std::endl;
 }
 
-void setreg_fct(std::string const &)
+void setreg_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [setreg] (et leuku aussi)" << std::endl;
 }
 
-void backtrace_fct(std::string const &)
+void backtrace_fct(int32_t _child_pid, std::string const&)
 {
   std::cout << "commande: [backtrace] (et leuku aussi)" << std::endl;
 }

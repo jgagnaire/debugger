@@ -6,9 +6,9 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include <map>
 
 #include "gueuldeboua.hh"
+#include "debugger.hh"
 
 int file_fd;
 
@@ -31,6 +31,8 @@ int main(int, char **av)
       return (-1);
     }
 
+    int32_t _child_pid = run_and_pause(av[1]);
+
   std::cout << PROMPT << std::flush;
   for (std::string tmp;
        std::getline(std::cin, tmp);
@@ -49,30 +51,30 @@ int main(int, char **av)
       switch (a)
 	{
 	case RUN_CMD:
-	  run_fct(tmp);
+	  run_fct(_child_pid, tmp);
 	  break ;
 	case QUIT_CMD:
 	  return (0);
 	case KILL_CMD:
-	  set_fct(tmp);
+	  set_fct(_child_pid, tmp);
 	  break ;
 	case BREAK_CMD:
-	  break_fct(tmp);
+	  break_fct(_child_pid, tmp);
 	  break ;
 	case DELETE_CMD:
-	  delete_fct(tmp);
+	  delete_fct(_child_pid, tmp);
 	  break ;
 	case PRINT_CMD:
-	  print_fct(tmp);
+	  print_fct(_child_pid, tmp);
 	  break ;
 	case PRINTREG_CMD:
-	  printreg_fct(tmp);
+	  printreg_fct(_child_pid, tmp);
 	  break ;
 	case SETREG_CMD:
-	  setreg_fct(tmp);
+	  setreg_fct(_child_pid, tmp);
 	  break ;
 	case BACKTRACE_CMD:
-	  backtrace_fct(tmp);
+	  backtrace_fct(_child_pid, tmp);
 	  break ;
 	case HELP_CMD:
 	  std::cout << HELP << std::endl;

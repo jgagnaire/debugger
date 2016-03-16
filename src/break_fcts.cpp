@@ -1,4 +1,8 @@
-#include "break_fcts.hh"
+#include "debugger.hh"
+
+std::map<uint64_t, uint64_t>    _breakpoint_map;
+uint64_t                        _data;
+struct user_regs_struct         _regs;
 
 void
 set_breakpoint(int32_t _child_pid, uint64_t addr) {
@@ -10,7 +14,7 @@ set_breakpoint(int32_t _child_pid, uint64_t addr) {
         std::cerr << strerror(errno) << std::endl;
 }
 
-int
+int32_t
 unset_breakpoint(int32_t _child_pid, uint64_t addr) {
     uint64_t    to_restore;
     // try to find the addr in the breakpoint map

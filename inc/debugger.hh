@@ -1,11 +1,12 @@
 #pragma once
 
-# include <unistd.h>
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <sys/ptrace.h>
 # include <sys/user.h>
 # include <sys/reg.h>
+# include <stdlib.h>
+# include <unistd.h>
 # include <stdint.h>
 # include <errno.h>
 # include <string.h>
@@ -15,9 +16,7 @@
 # include <map>
 # include <iomanip>
 
-//std::string                     _arg;
-std::map<uint64_t, uint64_t>    _breakpoint_map;
-uint64_t                        _data;
-struct user_regs_struct         _regs;
+void        set_breakpoint(int32_t pid, uint64_t addr);
+int32_t     unset_breakpoint(int32_t pid, uint64_t addr);
+int32_t     run_and_pause(std::string const& name); 
 
-void        set_breakpoint(uint64_t addr);
