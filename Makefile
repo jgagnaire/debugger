@@ -6,10 +6,10 @@ CC				=		g++
 RM				=		rm -f
 MKDIR			=		mkdir -p
 
-CFLAGS			:= 		-Wall -Wextra -Iinc/ -ggdb #-std=c++14
-#LDFLAGS			:=		-ldwarf -lelf
+CFLAGS			:= 		-Wall -Wextra -Iinc/ -g
+LDFLAGS			:=		-ldwarf -lelf
 
-NAME			=		geuldeboua
+NAME			=		gueuldeboua
 
 OBJ_DIR			=		obj
 SRC_DIR			=		src

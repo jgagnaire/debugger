@@ -24,15 +24,16 @@
 # define CNF "commande inexistante, tape help si t'es perdu"
 # define HELP "commandes possibles: run, kill, quit, set, break, delete, print, printreg, setreg, backtrace, help"
 
-Elf64_Word get_sym_addr(std::string const &, int *);
+Elf64_Word get_globalsym_addr(std::string const &, int *);
+int get_localvar_addr(std::string const &, Elf64_Word *, unsigned long *);
 
-void run_fct(int32_t _child_pid, std::string const&);
-void set_fct(int32_t _child_pid, std::string const&);
-void break_fct(int32_t _child_pid, std::string const&);
-void delete_fct(int32_t _child_pid, std::string const&);
-void print_fct(int32_t _child_pid, std::string const&);
-void printreg_fct(int32_t _child_pid, std::string const&);
-void setreg_fct(int32_t _child_pid, std::string const&);
-void backtrace_fct(int32_t _child_pid, std::string const&);
+void run_fct(std::string const&);
+void set_fct(std::string const&);
+void break_fct(std::string const&);
+void delete_fct(std::string const&);
+void print_fct(std::string const&);
+void printreg_fct(std::string const&);
+void setreg_fct(std::string const&);
+void backtrace_fct(std::string const&);
 
 #endif /* !GUEULDEBOUA_H_ */

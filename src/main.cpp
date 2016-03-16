@@ -1,7 +1,9 @@
 
-#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <signal.h>
+#include <fcntl.h>
 
 #include <stdexcept>
 #include <string>
@@ -11,6 +13,7 @@
 #include "debugger.hh"
 
 int file_fd;
+int _child_pid;
 
 int main(int, char **av)
 {
@@ -31,7 +34,7 @@ int main(int, char **av)
       return (-1);
     }
 
-    int32_t _child_pid = run_and_pause(av[1]);
+  _child_pid = run_and_pause(av[1]);
 
   std::cout << PROMPT << std::flush;
   for (std::string tmp;
@@ -51,30 +54,33 @@ int main(int, char **av)
       switch (a)
 	{
 	case RUN_CMD:
-	  run_fct(_child_pid, tmp);
+	  run_fct(tmp);
 	  break ;
 	case QUIT_CMD:
-	  return (0);
+	  {
+	    (void)::kill(_child_pid, SIGTERM);
+	    return (::close(file_fd));
+	  }
 	case KILL_CMD:
-	  set_fct(_child_pid, tmp);
+	  set_fct(tmp);
 	  break ;
 	case BREAK_CMD:
-	  break_fct(_child_pid, tmp);
+	  break_fct(tmp);
 	  break ;
 	case DELETE_CMD:
-	  delete_fct(_child_pid, tmp);
+	  delete_fct(tmp);
 	  break ;
 	case PRINT_CMD:
-	  print_fct(_child_pid, tmp);
+	  print_fct(tmp);
 	  break ;
 	case PRINTREG_CMD:
-	  printreg_fct(_child_pid, tmp);
+	  printreg_fct(tmp);
 	  break ;
 	case SETREG_CMD:
-	  setreg_fct(_child_pid, tmp);
+	  setreg_fct(tmp);
 	  break ;
 	case BACKTRACE_CMD:
-	  backtrace_fct(_child_pid, tmp);
+	  backtrace_fct(tmp);
 	  break ;
 	case HELP_CMD:
 	  std::cout << HELP << std::endl;
@@ -85,5 +91,6 @@ int main(int, char **av)
 	}
     }
   std::cout << std::endl;
-  return (0);
+  (void)::kill(_child_pid, SIGTERM);
+  return (::close(file_fd));
 }

@@ -5,20 +5,22 @@
 #include "gueuldeboua.hh"
 #include "debugger.hh"
 
-void run_fct(int32_t _child_pid, std::string const&)
+extern int32_t _child_pid;
+
+void run_fct(std::string const&)
 {
   std::cout << "commande: [run] (et lekudlashat aussi)" << std::endl;
 }
 
-void set_fct(int32_t _child_pid, std::string const&)
+void set_fct(std::string const&)
 {
   std::cout << "commande: [set] (et leusex aussi)" << std::endl;
 }
 
-void break_fct(int32_t _child_pid, std::string const& cmd)
+void break_fct(std::string const& cmd)
 {
   unsigned long i;
-  unsigned long symaddr;
+  Elf64_Word fctaddr;
   int error;
 
   if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() - 1)
@@ -27,35 +29,46 @@ void break_fct(int32_t _child_pid, std::string const& cmd)
                 << std::endl;
       return ;
     }
-  symaddr = get_sym_addr(cmd.substr(i + 1), &error);
+  fctaddr = get_globalsym_addr(cmd.substr(i + 1), &error);
   if (error == -1)
     return ;
   std::cout << "l'adresse à laquelle on veut mettre un point de cassure est "
-            << "0x" << std::hex << symaddr << std::endl;
-  set_breakpoint(_child_pid, symaddr);
+            << "0x" << std::hex << fctaddr << std::endl;
+  set_breakpoint(_child_pid, fctaddr);
 }
 
-void delete_fct(int32_t _child_pid, std::string const&)
+void delete_fct(std::string const&)
 {
   std::cout << "commande: [delete] (et lekouy aussi)" << std::endl;
 }
 
-void print_fct(int32_t _child_pid, std::string const&)
+void print_fct(std::string const& cmd)
 {
-  std::cout << "commande: [print] (et leuzobe aussi)" << std::endl;
+  unsigned long i, varsize;
+  Elf64_Word varaddr;
+
+  if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() - 1)
+    {
+      std::cout << "file le nom de la variable que tu veux print"
+                << std::endl;
+      return ;
+    }
+  if (get_localvar_addr(cmd.substr(i + 1), &varaddr, &varsize) == -1)
+    return ;
+  //print_variable_value(varaddr, varsize);
 }
 
-void printreg_fct(int32_t _child_pid, std::string const&)
+void printreg_fct(std::string const&)
 {
   std::cout << "commande: [printreg] (et leuphyon aussi)" << std::endl;
 }
 
-void setreg_fct(int32_t _child_pid, std::string const&)
+void setreg_fct(std::string const&)
 {
   std::cout << "commande: [setreg] (et leuku aussi)" << std::endl;
 }
 
-void backtrace_fct(int32_t _child_pid, std::string const&)
+void backtrace_fct(std::string const&)
 {
   std::cout << "commande: [backtrace] (et leuku aussi)" << std::endl;
 }

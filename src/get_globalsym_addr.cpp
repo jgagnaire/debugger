@@ -9,11 +9,11 @@
 #include <map>
 
 extern int file_fd;
-static std::map<std::string, Elf64_Sym> symaddr_map;
+static std::map<std::string, Elf64_Sym> global_symaddr_map;
+long save_strtab_idx;
+long save_symtab_idx;
 
-static char *get_strtab(Elf64_Shdr *section_header_table,
-			long save_strtab_idx,
-			int *error)
+static char *get_strtab(Elf64_Shdr *section_header_table, int *error)
 {
   char *strtab;
 
@@ -28,10 +28,7 @@ static char *get_strtab(Elf64_Shdr *section_header_table,
   return (strtab);
 }
 
-static Elf64_Shdr *get_section_header_table(Elf64_Ehdr *header,
-					    long *save_symtab_idx,
-					    long *save_strtab_idx,
-					    int *error)
+static Elf64_Shdr *get_section_header_table(Elf64_Ehdr *header, int *error)
 {
   Elf64_Shdr *section_header_table;
 
@@ -48,10 +45,10 @@ static Elf64_Shdr *get_section_header_table(Elf64_Ehdr *header,
       switch (section_header_table[i].sh_type)
         {
         case SHT_SYMTAB:
-          *save_symtab_idx = i;
+          save_symtab_idx = i;
           break ;
         case SHT_STRTAB:
-          *save_strtab_idx = i;
+          save_strtab_idx = i;
           break ;
         default :
           break ;
@@ -75,7 +72,6 @@ static int fill_header(Elf64_Ehdr *header, int *error)
 
 static int get_symtab_and_fill_map(char *strtab,
 				   Elf64_Shdr *section_header_table,
-				   long save_symtab_idx,
 				   int *error)
 {
   Elf64_Sym *symtab;
@@ -98,38 +94,34 @@ static int get_symtab_and_fill_map(char *strtab,
 	  *error = -1;
 	  return (-1);
 	}
-      symaddr_map[std::string(&strtab[symtab[i].st_name])] = symtab[i];
+      global_symaddr_map[std::string(&strtab[symtab[i].st_name])] = symtab[i];
     }
   ::free(symtab);
   ::free(strtab);
   return (0);
 }
 
-Elf64_Word get_sym_addr(std::string const &sym_name, int *error)
+Elf64_Word get_globalsym_addr(std::string const &sym_name, int *error)
 {
   Elf64_Ehdr header;
   Elf64_Shdr *section_header_table;
   long save_symtab_idx, save_strtab_idx;
   char *strtab;
   
-  if (!symaddr_map.empty())
+  if (!global_symaddr_map.empty())
     goto ret_label;
   save_symtab_idx = -1;
   save_strtab_idx = -1;
   if (fill_header(&header, error) == -1
-      || !(section_header_table = get_section_header_table(&header,
-							   &save_symtab_idx,
-							   &save_strtab_idx,
-							   error))
+      || !(section_header_table = get_section_header_table(&header, error))
       || save_symtab_idx == -1 || save_strtab_idx == -1
-      || !(strtab = get_strtab(section_header_table, save_strtab_idx, error))
-      || get_symtab_and_fill_map(strtab, section_header_table,
-				 save_symtab_idx, error))
+      || !(strtab = get_strtab(section_header_table, error))
+      || get_symtab_and_fill_map(strtab, section_header_table, error))
     return (0);
  ret_label:
   try {
     *error = 0;
-    return (symaddr_map.at(sym_name).st_value);
+    return (global_symaddr_map.at(sym_name).st_value);
   }
   catch (...) {
     std::cout << "file une fonction qui existe, ca marchera probablement un peu mieux"

@@ -14,10 +14,11 @@ run_and_pause(std::string const& child_name) {
     if ((_child_pid = fork()) == 0) {
         exec_child(child_name);
     } else if (_child_pid > 0) {
-        waitpid(_child_pid, &status, 0);
+        ::waitpid(_child_pid, &status, 0);
         return _child_pid;
     } else {
         std::cerr << "error while forking" << std::endl;
         exit(1);
     }
+    return _child_pid;
 }
