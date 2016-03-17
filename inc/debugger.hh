@@ -19,4 +19,6 @@
 void        set_breakpoint(int32_t pid, uint64_t addr);
 int32_t     unset_breakpoint(int32_t pid, uint64_t addr);
 int32_t     run_and_pause(std::string const& name); 
+int32_t     setreg(int32_t _child_pid, std::string reg, int64_t value);
+int32_t     printreg(int32_t _child_pid, std::string const& reg);
 

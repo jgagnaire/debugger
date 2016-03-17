@@ -13,23 +13,11 @@
 # include <map>
 # include <iomanip>
 
-class GueulDeBoua {
-    private:
-        std::string             _arg;
-        //std::map                _breakpoint_map;
-        uint64_t                _data;
-        struct user_regs_struct _regs;
-        int                     _child_pid;
+//std::string                     _arg;
+std::map<uint64_t, uint64_t>    _breakpoint_map;
+uint64_t                        _data;
+struct user_regs_struct         _regs;
+int                             _child_pid;
 
-    public:
-        GueulDeBoua(std::string const& arg);
-        ~GueulDeBoua();
-
-    public:
-        void        ptrace();
-        void        frok();
-        void        debugger(int status);
-        void        break_(int);
-        int        restoreBreak(int);
-};
-
+void        set_breakpoint(uint64_t addr);
+int         unset_breakpoint(uint64_t addr);
