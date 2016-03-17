@@ -1,31 +1,35 @@
 #include "GueulDeBoua.hh"
 
-GueulDeBoua::GueulDeBoua(std::string const& arg) : _arg(arg) {}
-
-GueulDeBoua::~GueulDeBoua() {}
-
+/*
 void
-GueulDeBoua::frok() {
+frok() {
     ::execl(_arg.c_str(), _arg.c_str(), NULL);
 }
+*/
 
 void
-GueulDeBoua::break_(int addr) {
+set_breakpoint(uint64_t addr) {
     uint64_t    data = 0;
     _data = ::ptrace(PTRACE_PEEKTEXT, _child_pid, addr, 0);
+    _breakpoint_map[addr] = _data;
     uint64_t    trapped_data = (data & 0xFFFFFFFFFFFFFF00) | 0xCC;
     if (::ptrace(PTRACE_POKETEXT, _child_pid, addr, trapped_data))
         std::cerr << strerror(errno) << std::endl;
 }
 
 int
-GueulDeBoua::restoreBreak(int addr) {
+unset_breakpoint(uint64_t addr) {
+    uint64_t    to_restore;
+    // try to find the addr in the breakpoint map
+    if (_breakpoint_map.find(addr) == _breakpoint_map.end()) {
+        return 2;
+    } else {
+        to_restore = _breakpoint_map[addr];
+    }
+    // check regs to see if you're on the right step
+    ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
     if (_regs.rip == (unsigned long) addr + 1) {
-        std::cout << std::hex << _regs.rip << std::endl;
-        std::cout << "data: " << _data << std::endl;
-        ::ptrace(PTRACE_POKETEXT, _child_pid, addr, _data);
-        std::string tmp;
-        std::getline(std::cin, tmp);
+        ::ptrace(PTRACE_POKETEXT, _child_pid, addr, to_restore);
         _regs.rip -= 1;
         ::ptrace(PTRACE_SETREGS, _child_pid, 0, &_regs);
         return 1;
@@ -33,12 +37,12 @@ GueulDeBoua::restoreBreak(int addr) {
     return 0;
 }
 
+/*
 void
-GueulDeBoua::debugger(int status) {
+debugger(uint32_t addr, int status) {
         int         count = 0;
-        uint32_t    addr = 0x400562;
 
-        break_(addr);
+        set_breakpoint(addr);
         if (::ptrace(PTRACE_CONT, _child_pid, 0, 0)) {
             std::cerr << strerror(errno) << std::endl;
         }
@@ -49,7 +53,7 @@ GueulDeBoua::debugger(int status) {
                 std::cerr << strerror(errno) << std::endl;
             }
 
-            if (restoreBreak(addr)) {
+            if (unset_breakpoint(addr)) {
             
                 ::ptrace(PTRACE_SINGLESTEP, _child_pid, 0, 0);
                 wait(&status);
@@ -75,9 +79,11 @@ GueulDeBoua::debugger(int status) {
             << " instructions."
             << std::endl; 
 }
+*/
 
-void
-GueulDeBoua::ptrace() {
+
+/*
+void        ptrace() {
     int status;
 
     if ((_child_pid = fork()) == 0) {
@@ -90,3 +96,4 @@ GueulDeBoua::ptrace() {
         std::cerr << "fork" << std::endl;
     }
 }
+*/

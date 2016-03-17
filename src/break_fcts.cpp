@@ -2,7 +2,7 @@
 
 std::map<uint64_t, uint64_t>    _breakpoint_map;
 uint64_t                        _data;
-struct user_regs_struct         _regs;
+static struct user_regs_struct         _regs;
 
 void
 set_breakpoint(int32_t _child_pid, uint64_t addr) {

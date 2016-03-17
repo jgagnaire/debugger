@@ -6,7 +6,7 @@ CC				=		g++
 RM				=		rm -f
 MKDIR			=		mkdir -p
 
-CFLAGS			:= 		-Wall -Wextra -Iinc/ -ggdb #-std=c++14
+CFLAGS			:= 		-Wall -Wextra -Iinc/ -ggdb -std=c++14
 #LDFLAGS			:=		-ldwarf -lelf
 
 NAME			=		geuldeboua
