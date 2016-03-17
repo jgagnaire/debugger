@@ -22,9 +22,10 @@ std::map<std::string, int> regs_list = {
 static struct user_regs_struct _regs;
 
 int32_t
-setreg(int32_t _child_pid, std::string const& regs, int64_t value) {
+setreg(int32_t _child_pid, std::string const& reg, int64_t value) {
+    std::cout << reg << " " << value << std::endl;
     ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs); 
-    switch (regs_list[regs]) {
+    switch (regs_list[reg]) {
         case 0:
             _regs.rax = value;
             break;
@@ -76,61 +77,61 @@ setreg(int32_t _child_pid, std::string const& regs, int64_t value) {
         default:
             return -1;
     }
-    ptrace(PTRACE_SETREGS, _child_pid, 0, &regs);
+    ptrace(PTRACE_SETREGS, _child_pid, 0, &_regs);
     return 1;
 }
 
 int32_t
-printreg(int32_t _child_pid, std::string const& regs) {
+printreg(int32_t _child_pid, std::string const& reg) {
     ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
-    switch (regs_list[regs]) {
+    switch (regs_list[reg]) {
         case 0:
-            std::cout << regs << " = " << _regs.rax;
+            std::cout << reg << " = " << _regs.rax;
             break;
         case 1:
-            std::cout << regs << " = " << _regs.rbx;
+            std::cout << reg << " = " << _regs.rbx;
             break;
         case 2:
-            std::cout << regs << " = " << _regs.rcx;
+            std::cout << reg << " = " << _regs.rcx;
             break;
         case 3:
-            std::cout << regs << " = " << _regs.rdx;
+            std::cout << reg << " = " << _regs.rdx;
             break;
         case 4:
-            std::cout << regs << " = " << _regs.rsi;
+            std::cout << reg << " = " << _regs.rsi;
             break;
         case 5:
-            std::cout << regs << " = " << _regs.rdi;
+            std::cout << reg << " = " << _regs.rdi;
             break;
         case 6:
-            std::cout << regs << " = " << _regs.rbp;
+            std::cout << reg << " = " << _regs.rbp;
             break;
         case 7:
-            std::cout << regs << " = " << _regs.rsp;
+            std::cout << reg << " = " << _regs.rsp;
             break;
         case 8:
-            std::cout << regs << " = " << _regs.r8;
+            std::cout << reg << " = " << _regs.r8;
             break;
         case 9:
-            std::cout << regs << " = " << _regs.r9;
+            std::cout << reg << " = " << _regs.r9;
             break;
         case 10:
-            std::cout << regs << " = " << _regs.r10;
+            std::cout << reg << " = " << _regs.r10;
             break;
         case 11:
-            std::cout << regs << " = " << _regs.r11;
+            std::cout << reg << " = " << _regs.r11;
             break;
         case 12:
-            std::cout << regs << " = " << _regs.r12;
+            std::cout << reg << " = " << _regs.r12;
             break;
         case 13:
-            std::cout << regs << " = " << _regs.r13;
+            std::cout << reg << " = " << _regs.r13;
             break;
         case 14:
-            std::cout << regs << " = " << _regs.r14;
+            std::cout << reg << " = " << _regs.r14;
             break;
         case 15:
-            std::cout << regs << " = " << _regs.r15;
+            std::cout << reg << " = " << _regs.r15;
             break;
         default:
             return -1;

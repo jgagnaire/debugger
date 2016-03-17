@@ -73,7 +73,12 @@ void printreg_fct(std::string const& cmd)
 
 void setreg_fct(std::string const& cmd)
 {
-  std::cout << "commande: [setreg] (et leuku aussi)" << std::endl;
+    std::stringstream ss(cmd);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string>    cmd_vector(begin, end);
+    std::vector<std::string>::iterator it(cmd_vector.begin());
+    setreg(_child_pid, *(it + 1), std::atoi((*(it + 2)).c_str()));
 }
 
 void backtrace_fct(std::string const&)
