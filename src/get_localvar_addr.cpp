@@ -57,12 +57,10 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
   int tmp_error = -1;
   Dwarf_Error error = 0;
   Dwarf_Half tag = 0;
-  //  const char *tagname = 0;
 
   switch (::dwarf_diename(die, &name, &error))
     {
     case DW_DLV_NO_ENTRY:
-      std::cout << "ici" << std::endl;
       return ;
     case DW_DLV_ERROR:
       std::cout << "dwarf_diename() failed, at level " << level << std::endl;
@@ -76,19 +74,15 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
   switch (tag)
     {
     case DW_TAG_subprogram:
-      std::cout << "function" << std::endl;
+      std::cout << "function name: " << name << " level: " << level << std::endl;
       break ;
     case DW_TAG_variable:
-      std::cout << "variable" << std::endl;
+      std::cout << "variable name: " << name << " level: " << level << std::endl;
       break ;
     case DW_TAG_formal_parameter:
-      std::cout << "parameter" << std::endl;
+      std::cout << "parameter name: " << name << " level: " << level << std::endl;
       break ;    
     }
-  //tmp = get_var_addr(die, &tmp_error);
-  // if (tmp_error == -1)
-  //   return ;
-  //local_varaddr_map[std::string(name)] = tmp;
 }
 
 static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
@@ -97,10 +91,9 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
   Dwarf_Die child = 0;
   Dwarf_Error error;
 
-  std::cout << "LABITE" << std::endl;
-  get_die_data(dbg, in_die, level);
   while (1)
     {
+      get_die_data(dbg, cur_die, level);
       Dwarf_Die sib_die;
 
       switch (::dwarf_child(cur_die, &child, &error))
@@ -115,16 +108,13 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
       switch (::dwarf_siblingof(dbg, cur_die, &sib_die, &error))
 	{
 	case DW_DLV_NO_ENTRY:
-	  std::cout << "PLUS DE SYMBOLES" << std::endl;
 	  return (0);
 	case DW_DLV_ERROR:
 	  std::cout << "dwarf_siblingof() failed" << std::endl;
 	  return (-1);
-	case DW_DLV_OK:
-	  if (cur_die != in_die)
-	    ::dwarf_dealloc(dbg, cur_die, DW_DLA_DIE);
-	  break ;
 	}
+      if (cur_die != in_die)
+	::dwarf_dealloc(dbg, cur_die, DW_DLA_DIE);
       cur_die = sib_die;
     }
 }
