@@ -1,9 +1,11 @@
 #ifndef GUEULDEUBOUA_H_
 # define GUEULDEUBOUA_H_
 
+# include <libdwarf.h>
 # include <elf.h>
 
 # include <string>
+# include <list>
 
 # define CMD_NB 11
 # define RUN_CMD 0
@@ -23,6 +25,13 @@
 # define USAGE "Usage: ./GueulDeBoua programme_a_deboguer"
 # define CNF "commande inexistante, tape help si t'es perdu"
 # define HELP "commandes possibles: run, kill, quit, set, break, delete, print, printreg, setreg, backtrace, help"
+
+struct func_struct
+{
+  Dwarf_Addr func_address;
+  std::list<Dwarf_Die> params_list;
+  std::list<Dwarf_Die> variables_list;
+};
 
 Elf64_Word get_globalsym_addr(std::string const &, int *);
 int get_localvar_addr(std::string const &, Elf64_Word *, unsigned long *);

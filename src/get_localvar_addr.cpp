@@ -16,40 +16,40 @@ extern Elf64_Ehdr header;
 extern Elf64_Shdr *section_header_table;
 extern long save_strtab_idx;
 
-static std::map<std::string, Dwarf_Addr> local_varaddr_map;
+static std::map<std::string, func_struct> die_map;
 
-static Dwarf_Addr get_var_addr(Dwarf_Die die, int *tmp_error)
-{
-  Dwarf_Error error;
-  Dwarf_Attribute *attrs;
-  Dwarf_Addr addr;
-  Dwarf_Signed attrcount;
+// static Dwarf_Addr get_var_addr(Dwarf_Die die, int *tmp_error)
+// {
+//   Dwarf_Error error;
+//   Dwarf_Attribute *attrs;
+//   Dwarf_Addr addr;
+//   Dwarf_Signed attrcount;
 
-  if (::dwarf_attrlist(die, &attrs, &attrcount, &error) != DW_DLV_OK)
-    {
-      std::cout << "error in dwarf_attrlist()" << std::endl;
-      *tmp_error = -1;
-      return (-1);
-    }
-  for (long i = 0; i < attrcount; ++i)
-    {
-      Dwarf_Half attrcode;
+//   if (::dwarf_attrlist(die, &attrs, &attrcount, &error) != DW_DLV_OK)
+//     {
+//       std::cout << "error in dwarf_attrlist()" << std::endl;
+//       *tmp_error = -1;
+//       return (-1);
+//     }
+//   for (long i = 0;i < attrcount;++i)
+//     {
+//       Dwarf_Half attrcode;
 
-      if (::dwarf_whatattr(attrs[i], &attrcode, &error) != DW_DLV_OK)
-        {
-	  std::cout << "error in dwarf_whatattr()" << std::endl;
-	  *tmp_error = -1;
-	  return (-1);
-	}
-      if (attrcode == DW_AT_location)
-	{
-	  ::dwarf_formaddr(attrs[i], &addr, 0);
-	  return (addr);
-	}
-    }
-  *tmp_error = 0;
-  return (addr);
-}
+//       if (::dwarf_whatattr(attrs[i], &attrcode, &error) != DW_DLV_OK)
+//         {
+// 	  std::cout << "error in dwarf_whatattr()" << std::endl;
+// 	  *tmp_error = -1;
+// 	  return (-1);
+// 	}
+//       if (attrcode == DW_AT_location)
+//       	{
+//       	  ::dwarf_formaddr(attrs[i], &addr, 0);
+//       	  return (addr);
+//       	}
+//     }
+//   *tmp_error = 0;
+//   return (addr);
+// }
 
 static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
 {
@@ -57,12 +57,12 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
   int tmp_error = -1;
   Dwarf_Error error = 0;
   Dwarf_Half tag = 0;
-  Dwarf_Addr tmp = 0;
-  const char *tagname = 0;
+  //  const char *tagname = 0;
 
   switch (::dwarf_diename(die, &name, &error))
     {
     case DW_DLV_NO_ENTRY:
+      std::cout << "ici" << std::endl;
       return ;
     case DW_DLV_ERROR:
       std::cout << "dwarf_diename() failed, at level " << level << std::endl;
@@ -73,21 +73,22 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
       std::cout << "dwarf_tag() failed, at level " << level << std::endl;
       return ;
     }
-  if (::dwarf_get_TAG_name(tag, &tagname) != DW_DLV_OK)
+  switch (tag)
     {
-      std::cout << "dwarf_get_TAG_name() failed, at level " << level << std::endl;
-      return ;
+    case DW_TAG_subprogram:
+      std::cout << "function" << std::endl;
+      break ;
+    case DW_TAG_variable:
+      std::cout << "variable" << std::endl;
+      break ;
+    case DW_TAG_formal_parameter:
+      std::cout << "parameter" << std::endl;
+      break ;    
     }
-  if (::strcmp(tagname, "DW_TAG_variable"))
-    {
-      ::dwarf_dealloc(dbg, name, DW_DLA_STRING);
-      return ;
-    }
-  tmp = get_var_addr(die, &tmp_error);
-  if (tmp_error == -1)
-    return ;
-  local_varaddr_map[std::string(name)] = tmp;
-  std::cout << "LE NOM ET L'ADRESSE DE LA VARIABLE: [" << name << " || " << tmp << "]" << std::endl;
+  //tmp = get_var_addr(die, &tmp_error);
+  // if (tmp_error == -1)
+  //   return ;
+  //local_varaddr_map[std::string(name)] = tmp;
 }
 
 static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
@@ -96,6 +97,7 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
   Dwarf_Die child = 0;
   Dwarf_Error error;
 
+  std::cout << "LABITE" << std::endl;
   get_die_data(dbg, in_die, level);
   while (1)
     {
@@ -113,6 +115,7 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
       switch (::dwarf_siblingof(dbg, cur_die, &sib_die, &error))
 	{
 	case DW_DLV_NO_ENTRY:
+	  std::cout << "PLUS DE SYMBOLES" << std::endl;
 	  return (0);
 	case DW_DLV_ERROR:
 	  std::cout << "dwarf_siblingof() failed" << std::endl;
