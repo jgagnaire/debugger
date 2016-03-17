@@ -105,7 +105,6 @@ Elf64_Word get_globalsym_addr(std::string const &sym_name, int *error)
 {
   Elf64_Ehdr header;
   Elf64_Shdr *section_header_table;
-  long save_symtab_idx, save_strtab_idx;
   char *strtab;
   
   if (!global_symaddr_map.empty())

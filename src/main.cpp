@@ -57,10 +57,7 @@ int main(int, char **av)
 	  run_fct(tmp);
 	  break ;
 	case QUIT_CMD:
-	  {
-	    (void)::kill(_child_pid, SIGTERM);
-	    return (::close(file_fd));
-	  }
+	  return (0);
 	case KILL_CMD:
 	  set_fct(tmp);
 	  break ;
@@ -90,6 +87,7 @@ int main(int, char **av)
 	  break ;
 	}
     }
+
   std::cout << std::endl;
   (void)::kill(_child_pid, SIGTERM);
   return (::close(file_fd));

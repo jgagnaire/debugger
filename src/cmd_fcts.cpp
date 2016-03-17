@@ -58,7 +58,7 @@ void print_fct(std::string const& cmd)
   //print_variable_value(varaddr, varsize);
 }
 
-void printreg_fct(int32_t _child_pid, std::string const& cmd)
+void printreg_fct(std::string const& cmd)
 {
     uint64_t    i;
 
@@ -71,7 +71,7 @@ void printreg_fct(int32_t _child_pid, std::string const& cmd)
     }
 }
 
-void setreg_fct(int32_t _child_pid, std::string const& cmd)
+void setreg_fct(std::string const& cmd)
 {
   std::cout << "commande: [setreg] (et leuku aussi)" << std::endl;
 }
