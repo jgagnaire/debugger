@@ -9,7 +9,7 @@ extern int32_t _child_pid;
 
 void run_fct(std::string const&)
 {
-  std::cout << "commande: [run] (et lekudlashat aussi)" << std::endl;
+    run_tracee(_child_pid);
 }
 
 void set_fct(std::string const&)
