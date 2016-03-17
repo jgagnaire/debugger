@@ -4,6 +4,7 @@
 
 #include <sys/types.h>
 #include <libdwarf.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <dwarf.h>
@@ -18,38 +19,37 @@ extern long save_strtab_idx;
 
 static std::map<std::string, func_struct> die_map;
 
-// static Dwarf_Addr get_var_addr(Dwarf_Die die, int *tmp_error)
-// {
-//   Dwarf_Error error;
-//   Dwarf_Attribute *attrs;
-//   Dwarf_Addr addr;
-//   Dwarf_Signed attrcount;
+void create_func_struct(Dwarf_Die die, char *name)
+{
+  func_struct *x;
+  Dwarf_Error error;
+  Dwarf_Signed attr_nb; 
+  Dwarf_Attribute *attrlist; 
+  Dwarf_Addr func_addr;
+  int ret = 0;
 
-//   if (::dwarf_attrlist(die, &attrs, &attrcount, &error) != DW_DLV_OK)
-//     {
-//       std::cout << "error in dwarf_attrlist()" << std::endl;
-//       *tmp_error = -1;
-//       return (-1);
-//     }
-//   for (long i = 0;i < attrcount;++i)
-//     {
-//       Dwarf_Half attrcode;
+  if (::dwarf_attrlist(die, &attrlist, &attr_nb, &error) != DW_DLV_OK)
+    return ;
+  for (long i = 0;i < attr_nb;++i)
+    {
+      Dwarf_Half attrcode;
 
-//       if (::dwarf_whatattr(attrs[i], &attrcode, &error) != DW_DLV_OK)
-//         {
-// 	  std::cout << "error in dwarf_whatattr()" << std::endl;
-// 	  *tmp_error = -1;
-// 	  return (-1);
-// 	}
-//       if (attrcode == DW_AT_location)
-//       	{
-//       	  ::dwarf_formaddr(attrs[i], &addr, 0);
-//       	  return (addr);
-//       	}
-//     }
-//   *tmp_error = 0;
-//   return (addr);
-// }
+      if ((ret = ::dwarf_whatattr(attrlist[i], &attrcode, &error)) == DW_DLV_OK
+	  && attrcode == DW_AT_low_pc)
+	{
+	  x = new func_struct();
+	  ::dwarf_formaddr(attrlist[i], &func_addr, 0);
+	  x->func_addr = func_addr;
+	  die_map[std::string(name)] = *x;
+	  return ;
+	}
+      else if (ret == DW_DLV_ERROR)
+	{
+	  std::cout << "dwarf_whatattr() failed" << std::endl;
+	  return ;
+	}
+    }
+}
 
 static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
 {
@@ -74,7 +74,7 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
   switch (tag)
     {
     case DW_TAG_subprogram:
-      std::cout << "function name: " << name << " level: " << level << std::endl;
+      create_func_struct(die, name);
       break ;
     case DW_TAG_variable:
       std::cout << "variable name: " << name << " level: " << level << std::endl;

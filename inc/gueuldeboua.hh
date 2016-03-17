@@ -28,7 +28,7 @@
 
 struct func_struct
 {
-  Dwarf_Addr func_address;
+  Dwarf_Addr func_addr;
   std::list<Dwarf_Die> params_list;
   std::list<Dwarf_Die> variables_list;
 };
