@@ -58,12 +58,20 @@ void print_fct(std::string const& cmd)
   //print_variable_value(varaddr, varsize);
 }
 
-void printreg_fct(std::string const&)
+void printreg_fct(int32_t _child_pid, std::string const& cmd)
 {
-  std::cout << "commande: [printreg] (et leuphyon aussi)" << std::endl;
+    uint64_t    i;
+
+    if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() -1) {
+        return ;
+    }
+    std::string reg(cmd.substr(i + 1));
+    if (printreg(_child_pid, reg) >= 0) {
+        return ;
+    }
 }
 
-void setreg_fct(std::string const&)
+void setreg_fct(int32_t _child_pid, std::string const& cmd)
 {
   std::cout << "commande: [setreg] (et leuku aussi)" << std::endl;
 }
