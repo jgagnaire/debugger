@@ -45,12 +45,12 @@ static Elf64_Shdr *get_section_header_table(Elf64_Ehdr *header, int *error)
       switch (section_header_table[i].sh_type)
         {
         case SHT_SYMTAB:
+	  std::cout << "BITE" << std::endl;
           save_symtab_idx = i;
           break ;
         case SHT_STRTAB:
+	  std::cout << "SHATTE: " << i << std::endl;
           save_strtab_idx = i;
-          break ;
-        default :
           break ;
         }
     }
@@ -117,7 +117,11 @@ Elf64_Word get_globalsym_addr(std::string const &sym_name, int *error)
       || save_symtab_idx == -1 || save_strtab_idx == -1
       || !(strtab = get_strtab(section_header_table, error))
       || get_symtab_and_fill_map(strtab, section_header_table, error))
-    return (0);
+    {
+      return (0);
+    }
+  ::free(section_header_table);
+
  ret_label:
   try {
     *error = 0;

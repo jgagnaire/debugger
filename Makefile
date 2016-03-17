@@ -21,7 +21,7 @@ all				:		${NAME}
 
 ${NAME}			:		${OBJS}
 						${CC} ${CFLAGS} -o ${NAME} ${OBJS} ${LDFLAGS}
-						@echo 'LAGEULDEBOUA build'
+						@echo 'LAGUEULDEBOUA build'
 
 clean			:
 						${RM} ${OBJS}
