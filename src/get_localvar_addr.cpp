@@ -4,6 +4,7 @@
 
 #include <sys/types.h>
 #include <libdwarf.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -19,13 +20,62 @@ extern long save_strtab_idx;
 
 static std::map<std::string, func_struct> die_map;
 
-void create_func_struct(Dwarf_Die die, char *name)
+static func_struct *create_func_struct(Dwarf_Die die, char *name)
 {
   func_struct *x;
   Dwarf_Error error;
+  Dwarf_Signed attr_nb;
+  Dwarf_Attribute *attrlist;
+  int32_t ret = 0;
+
+  if (::dwarf_attrlist(die, &attrlist, &attr_nb, &error) != DW_DLV_OK)
+    return (0);
+  x = new func_struct();
+  x->func_addr = 0;
+  x->func_frame_base = 0;
+  for (long i = 0;i < attr_nb;++i)
+    {
+      Dwarf_Half attrcode;
+
+      if ((ret = ::dwarf_whatattr(attrlist[i], &attrcode, &error)) == DW_DLV_OK)
+	switch (attrcode)
+	  {
+	  case DW_AT_low_pc:
+	    ::dwarf_formaddr(attrlist[i], &x->func_addr, 0);
+	    break ;
+	  case DW_AT_frame_base:
+	    Dwarf_Half theform = 0, directform = 0;
+	    Dwarf_Unsigned tmp_bytes_nb = 0;
+
+            ::dwarf_whatform(attrlist[i], &theform, &error);
+	    ::dwarf_whatform_direct(attrlist[i], &directform, &error);
+	    if (theform == DW_FORM_exprloc)
+	      {
+		::dwarf_formexprloc(attrlist[i], &tmp_bytes_nb, &x->func_frame_base, &error);
+		for (unsigned j = tmp_bytes_nb;j < sizeof(Dwarf_Ptr);++j)
+		  ((unsigned char *)x->func_frame_base)[j] = 0;
+		std::cout << std::hex << x->func_frame_base << " || " << tmp_bytes_nb << std::endl;
+	      }
+	    break ;
+	  }
+      else if (ret == DW_DLV_ERROR)
+	{
+	  std::cout << "dwarf_whatattr() failed" << std::endl;
+	  return (0);
+	}
+    }
+  die_map[std::string(name)] = *x;
+  return (x);
+}
+
+static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
+{
+  if (!save_parent)
+    return ;
+
+  Dwarf_Error error;
   Dwarf_Signed attr_nb; 
-  Dwarf_Attribute *attrlist; 
-  Dwarf_Addr func_addr;
+  Dwarf_Attribute *attrlist;
   int ret = 0;
 
   if (::dwarf_attrlist(die, &attrlist, &attr_nb, &error) != DW_DLV_OK)
@@ -35,13 +85,19 @@ void create_func_struct(Dwarf_Die die, char *name)
       Dwarf_Half attrcode;
 
       if ((ret = ::dwarf_whatattr(attrlist[i], &attrcode, &error)) == DW_DLV_OK
-	  && attrcode == DW_AT_low_pc)
+	  && attrcode == DW_AT_location)
 	{
-	  x = new func_struct();
-	  ::dwarf_formaddr(attrlist[i], &func_addr, 0);
-	  x->func_addr = func_addr;
-	  die_map[std::string(name)] = *x;
-	  return ;
+	     Dwarf_Half theform = 0, directform = 0;
+	    Dwarf_Ptr ptr = 0;
+	    Dwarf_Unsigned tempud = 0;
+
+            ::dwarf_whatform(attrlist[i], &theform, &error);
+	    ::dwarf_whatform_direct(attrlist[i], &directform, &error);
+	    if (theform == DW_FORM_exprloc
+		&& ::dwarf_formexprloc(attrlist[i], &tempud, &ptr, &error) == DW_DLV_OK)
+	      {
+		std::cout << std::hex << "LEUSAYXE: [" << ptr << " || " << tempud << "]" << std::endl;
+	      }
 	}
       else if (ret == DW_DLV_ERROR)
 	{
@@ -49,12 +105,19 @@ void create_func_struct(Dwarf_Die die, char *name)
 	  return ;
 	}
     }
+  //save_parent->variables_list;
+}
+
+static void add_parameter(func_struct *save_parent, Dwarf_Die die, char *name)
+{
+  if (!save_parent)
+    return ;
 }
 
 static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
 {
+  static func_struct *save_parent = 0;
   char *name = 0;
-  int tmp_error = -1;
   Dwarf_Error error = 0;
   Dwarf_Half tag = 0;
 
@@ -74,14 +137,14 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
   switch (tag)
     {
     case DW_TAG_subprogram:
-      create_func_struct(die, name);
-      break ;
-    case DW_TAG_variable:
-      std::cout << "variable name: " << name << " level: " << level << std::endl;
+      save_parent = create_func_struct(die, name);
       break ;
     case DW_TAG_formal_parameter:
-      std::cout << "parameter name: " << name << " level: " << level << std::endl;
-      break ;    
+      add_parameter(save_parent, die, name);
+      break ;
+    case DW_TAG_variable:
+      add_variable(save_parent, die, name);
+      break ;
     }
 }
 

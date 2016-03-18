@@ -6,6 +6,7 @@
 
 # include <string>
 # include <list>
+# include <map>
 
 # define CMD_NB 11
 # define RUN_CMD 0
@@ -29,8 +30,9 @@
 struct func_struct
 {
   Dwarf_Addr func_addr;
-  std::list<Dwarf_Die> params_list;
-  std::list<Dwarf_Die> variables_list;
+  Dwarf_Ptr func_frame_base;
+  std::map<std::string, long> params_list;
+  std::map<std::string, long> variables_list;
 };
 
 Elf64_Word get_globalsym_addr(std::string const &, int *);
