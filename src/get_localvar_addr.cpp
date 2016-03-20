@@ -44,17 +44,29 @@ static func_struct *create_func_struct(Dwarf_Die die, char *name)
 	    ::dwarf_formaddr(attrlist[i], &x->func_addr, 0);
 	    break ;
 	  case DW_AT_frame_base:
+	    Dwarf_Ptr tmp = 0;
 	    Dwarf_Half theform = 0, directform = 0;
-	    Dwarf_Unsigned tmp_bytes_nb = 0;
 
             ::dwarf_whatform(attrlist[i], &theform, &error);
 	    ::dwarf_whatform_direct(attrlist[i], &directform, &error);
 	    if (theform == DW_FORM_exprloc)
 	      {
-		::dwarf_formexprloc(attrlist[i], &tmp_bytes_nb, &x->func_frame_base, &error);
-		for (unsigned j = tmp_bytes_nb;j < sizeof(Dwarf_Ptr);++j)
-		  ((unsigned char *)x->func_frame_base)[j] = 0;
-		std::cout << std::hex << x->func_frame_base << " || " << tmp_bytes_nb << std::endl;
+		::dwarf_formexprloc(attrlist[i], &x->func_frame_base_bytes_nb, &tmp, &error);
+		switch (x->func_frame_base_bytes_nb)
+		  {
+		  case 1:
+		    x->func_frame_base = *((uint8_t *)tmp);
+		    break ;
+		  case 2:
+		    x->func_frame_base = *((uint16_t *)tmp);
+		    break ;
+		  case 4:
+		    x->func_frame_base = *((uint32_t *)tmp);
+		    break ;
+		  case 8:
+		    x->func_frame_base = *((uint64_t *)tmp);
+		    break ;
+		  }
 	      }
 	    break ;
 	  }
@@ -77,6 +89,7 @@ static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
   Dwarf_Signed attr_nb; 
   Dwarf_Attribute *attrlist;
   int ret = 0;
+  var_struct *x = 0;
 
   if (::dwarf_attrlist(die, &attrlist, &attr_nb, &error) != DW_DLV_OK)
     return ;
@@ -87,17 +100,28 @@ static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
       if ((ret = ::dwarf_whatattr(attrlist[i], &attrcode, &error)) == DW_DLV_OK
 	  && attrcode == DW_AT_location)
 	{
-	     Dwarf_Half theform = 0, directform = 0;
-	    Dwarf_Ptr ptr = 0;
-	    Dwarf_Unsigned tempud = 0;
+	  Dwarf_Locdesc *llbuf = 0, **llbufarray = 0;
+	  Dwarf_Signed nb_of_elements;
 
-            ::dwarf_whatform(attrlist[i], &theform, &error);
-	    ::dwarf_whatform_direct(attrlist[i], &directform, &error);
-	    if (theform == DW_FORM_exprloc
-		&& ::dwarf_formexprloc(attrlist[i], &tempud, &ptr, &error) == DW_DLV_OK)
-	      {
-		std::cout << std::hex << "LEUSAYXE: [" << ptr << " || " << tempud << "]" << std::endl;
+	  if (!(x = (var_struct *)::calloc(1, sizeof(var_struct)))
+	      || ::dwarf_loclist_n(attrlist[i], &llbufarray, &nb_of_elements, &error) != DW_DLV_OK)
+	    return ;
+	  for (long llent = 0;llent < nb_of_elements;++llent)
+	    {
+	      llbuf = llbufarray[llent];
+
+	      for (long k = 0; k < llbuf->ld_cents; ++k) {
+		switch (llbuf->ld_s[k].lr_atom)
+		  {
+		  case DW_OP_breg6:
+		    x->rbp_offset = (Dwarf_Signed)llbuf->ld_s[k].lr_number;
+		    break ;
+		  case DW_OP_fbreg:
+		    x->fbreg_offset = (Dwarf_Signed)llbuf->ld_s[k].lr_number;
+		    break ;
+		  }
 	      }
+	    }
 	}
       else if (ret == DW_DLV_ERROR)
 	{
@@ -105,16 +129,11 @@ static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
 	  return ;
 	}
     }
-  //save_parent->variables_list;
+  if (x)
+    save_parent->variables_list[std::string(name)] = *x;
 }
 
-static void add_parameter(func_struct *save_parent, Dwarf_Die die, char *name)
-{
-  if (!save_parent)
-    return ;
-}
-
-static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
+static void get_die_data(Dwarf_Die die, int level)
 {
   static func_struct *save_parent = 0;
   char *name = 0;
@@ -140,8 +159,6 @@ static void get_die_data(Dwarf_Debug dbg, Dwarf_Die die, int level)
       save_parent = create_func_struct(die, name);
       break ;
     case DW_TAG_formal_parameter:
-      add_parameter(save_parent, die, name);
-      break ;
     case DW_TAG_variable:
       add_variable(save_parent, die, name);
       break ;
@@ -156,7 +173,7 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
 
   while (1)
     {
-      get_die_data(dbg, cur_die, level);
+      get_die_data(cur_die, level);
       Dwarf_Die sib_die;
 
       switch (::dwarf_child(cur_die, &child, &error))

@@ -27,12 +27,19 @@
 # define CNF "commande inexistante, tape help si t'es perdu"
 # define HELP "commandes possibles: run, kill, quit, set, break, delete, print, printreg, setreg, backtrace, help"
 
+struct var_struct
+{
+  long rbp_offset;
+  long fbreg_offset;
+};
+
 struct func_struct
 {
   Dwarf_Addr func_addr;
-  Dwarf_Ptr func_frame_base;
-  std::map<std::string, long> params_list;
-  std::map<std::string, long> variables_list;
+  uint64_t func_frame_base;
+  Dwarf_Unsigned func_frame_base_bytes_nb;
+  std::map<std::string, var_struct> params_list;
+  std::map<std::string, var_struct> variables_list;
 };
 
 Elf64_Word get_globalsym_addr(std::string const &, int *);
