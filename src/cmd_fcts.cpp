@@ -44,18 +44,45 @@ void delete_fct(std::string const&)
 
 void print_fct(std::string const& cmd)
 {
-  unsigned long i, varsize;
-  Elf64_Word varaddr;
+  std::stringstream ss(cmd);
+  std::istream_iterator<std::string> begin(ss);
+  std::istream_iterator<std::string> end;
+  std::vector<std::string>    cmd_vector(begin, end);
+  std::vector<std::string>::iterator it(cmd_vector.begin());
+  func_struct *x;
+  var_struct *y;
 
-  if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() - 1)
+  if (cmd_vector.size() < 3)
     {
-      std::cout << "file le nom de la variable que tu veux print"
-                << std::endl;
+      std::cout << "file le nom de la fonction, celui de la variable"
+		<< " et 'local' ou 'param' selon le type de variable"
+		<< " que tu veux print"
+		<< std::endl;
       return ;
     }
-  if (get_localvar_addr(cmd.substr(i + 1), &varaddr, &varsize) == -1)
+
+  if (!(x = get_func_struct(*(it + 1))))
     return ;
-  //print_variable_value(varaddr, varsize);
+
+  try {
+    if (!(y = (!((*(it + 3)).compare("local")) ?
+	       x->variables_map.at(*(it + 2))
+	       : x->params_map.at(*(it + 2)))))
+      throw std::exception();
+  }
+  catch (...) {
+    std::cout << "variable non trouvee, verifie que le binaire "
+	      << "a debogguer soit compile avec -fvar-tracking !" << std::endl;
+    return ;
+  }
+
+  std::cout << std::endl
+	    << "variable '" << *(it + 2) << "' dans la fonction '" << *(it + 1)
+	    << "' à l'adresse " << "0x" << std::hex << (uint64_t)x->func_addr
+	    << std::dec << ":" << std::endl
+	    << "\t=> offset avec rbp (breg6): " << y->rbp_offset << std::endl
+	    << "\t=> offset avec l'adresse de '" << *(it + 1)
+	    << "'" << " (fbreg): " << y->fbreg_offset << std::endl;
 }
 
 void printreg_fct(std::string const& cmd)

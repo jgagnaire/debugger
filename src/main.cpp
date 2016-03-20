@@ -78,9 +78,9 @@ int main(int, char **av)
                     tmp.clear();
                     break ;
                 case QUIT_CMD:
-                    return (0);
+		  goto exit_label;
                 case KILL_CMD:
-                    set_fct(tmp);
+		  set_fct(tmp);
                     std::cout << PROMPT << std::flush;
                     tmp.clear();
                     break ;
@@ -127,7 +127,8 @@ int main(int, char **av)
             }
         }
 
-        std::cout << std::endl;
-        (void)::kill(_child_pid, SIGTERM);
-        return (::close(file_fd));
-    }
+ exit_label:
+    std::cout << std::endl;
+    (void)::kill(_child_pid, SIGTERM);
+    return (::close(file_fd));
+}

@@ -27,6 +27,12 @@
 # define CNF "commande inexistante, tape help si t'es perdu"
 # define HELP "commandes possibles: run, kill, quit, set, break, delete, print, printreg, setreg, backtrace, help"
 
+enum e_vartype
+  {
+    PARAM = 0,
+    LOCAL
+  };
+
 struct var_struct
 {
   long rbp_offset;
@@ -35,15 +41,18 @@ struct var_struct
 
 struct func_struct
 {
+  //debug
+  std::string name;
+  //
   Dwarf_Addr func_addr;
   uint64_t func_frame_base;
   Dwarf_Unsigned func_frame_base_bytes_nb;
-  std::map<std::string, var_struct> params_list;
-  std::map<std::string, var_struct> variables_list;
+  std::map<std::string, var_struct *> params_map;
+  std::map<std::string, var_struct *> variables_map;
 };
 
 Elf64_Word get_globalsym_addr(std::string const &, int *);
-int get_localvar_addr(std::string const &, Elf64_Word *, unsigned long *);
+func_struct *get_func_struct(std::string const &);
 
 void run_fct(std::string const&);
 void set_fct(std::string const&);

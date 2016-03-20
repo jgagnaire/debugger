@@ -18,7 +18,7 @@ extern Elf64_Ehdr header;
 extern Elf64_Shdr *section_header_table;
 extern long save_strtab_idx;
 
-static std::map<std::string, func_struct> die_map;
+static std::map<std::string, func_struct *> die_map;
 
 static func_struct *create_func_struct(Dwarf_Die die, char *name)
 {
@@ -76,23 +76,20 @@ static func_struct *create_func_struct(Dwarf_Die die, char *name)
 	  return (0);
 	}
     }
-  die_map[std::string(name)] = *x;
+  die_map[std::string(name)] = x;
   return (x);
 }
 
-static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
+static var_struct *create_var_struct(Dwarf_Die die)
 {
-  if (!save_parent)
-    return ;
-
-  Dwarf_Error error;
+  Dwarf_Error error = 0;
   Dwarf_Signed attr_nb; 
   Dwarf_Attribute *attrlist;
   int ret = 0;
   var_struct *x = 0;
 
   if (::dwarf_attrlist(die, &attrlist, &attr_nb, &error) != DW_DLV_OK)
-    return ;
+    return (0);
   for (long i = 0;i < attr_nb;++i)
     {
       Dwarf_Half attrcode;
@@ -100,12 +97,13 @@ static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
       if ((ret = ::dwarf_whatattr(attrlist[i], &attrcode, &error)) == DW_DLV_OK
 	  && attrcode == DW_AT_location)
 	{
-	  Dwarf_Locdesc *llbuf = 0, **llbufarray = 0;
-	  Dwarf_Signed nb_of_elements;
+	  Dwarf_Locdesc *llbuf = 0;
+	  Dwarf_Locdesc **llbufarray = 0;
+	  Dwarf_Signed nb_of_elements = 0;
 
 	  if (!(x = (var_struct *)::calloc(1, sizeof(var_struct)))
-	      || ::dwarf_loclist_n(attrlist[i], &llbufarray, &nb_of_elements, &error) != DW_DLV_OK)
-	    return ;
+	      || (ret = ::dwarf_loclist_n(attrlist[i], &llbufarray, &nb_of_elements, &error)) != DW_DLV_OK)
+	    return (0);
 	  for (long llent = 0;llent < nb_of_elements;++llent)
 	    {
 	      llbuf = llbufarray[llent];
@@ -126,11 +124,10 @@ static void add_variable(func_struct *save_parent, Dwarf_Die die, char *name)
       else if (ret == DW_DLV_ERROR)
 	{
 	  std::cout << "dwarf_whatattr() failed" << std::endl;
-	  return ;
+	  return (0);
 	}
     }
-  if (x)
-    save_parent->variables_list[std::string(name)] = *x;
+  return (x);
 }
 
 static void get_die_data(Dwarf_Die die, int level)
@@ -159,8 +156,10 @@ static void get_die_data(Dwarf_Die die, int level)
       save_parent = create_func_struct(die, name);
       break ;
     case DW_TAG_formal_parameter:
+      save_parent->params_map[std::string(name)] = create_var_struct(die);
+      break ;
     case DW_TAG_variable:
-      add_variable(save_parent, die, name);
+      save_parent->variables_map[std::string(name)] = create_var_struct(die);
       break ;
     }
 }
@@ -236,21 +235,28 @@ static int read_cu_list(Dwarf_Debug dbg)
   return (0);
 }
 
-int get_localvar_addr(std::string const &varname,
-		      Elf64_Word *varaddr,
-		      unsigned long *varsize)
+func_struct *get_func_struct(std::string const &fctname)
 {
   Dwarf_Debug dbg = 0;
   Dwarf_Error error;
 
-  (void)varname; (void)varaddr; (void)varsize;
+  if (!die_map.empty())
+    goto ret_label;
   if (::lseek(file_fd, 0, SEEK_SET) == -1
       || ::dwarf_init(file_fd, DW_DLC_READ, 0, 0, &dbg, &error) != DW_DLV_OK
       || read_cu_list(dbg) == -1)
     {
       std::cout << "fichier invalide" << std::endl;
-      return (-1);
+      return (0);
     }
-  (void)::dwarf_finish(dbg, &error);
-  return (0);
+  ::dwarf_finish(dbg, &error);
+
+ ret_label:
+  try {
+    return (die_map.at(fctname));
+  }
+  catch (...) {
+    std::cout << "file des trucs qui existent, sinon c'est chiant" << std::endl;
+    return (0);
+  }
 }
