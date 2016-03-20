@@ -55,6 +55,9 @@ int main(int, char **av)
             break ;
         } else if (rv == 0) { 
             waitpid(_child_pid, &status, WNOHANG);
+            if (WIFSTOPPED(status) && WSTOPSIG(status) == 5) {
+                check_for_breakpoint(_child_pid);
+            }
         } else {
             if (not std::getline(std::cin, tmp)) {
                 break ;
