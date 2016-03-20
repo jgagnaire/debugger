@@ -1,24 +1,32 @@
+#include <sched.h>
 #include "debugger.hh"
 
-void
-exec_child(std::string const& child_name) {
-    ::ptrace(PTRACE_TRACEME);
-    ::execl(child_name.c_str(), child_name.c_str(), NULL);
+static int
+exec_child(void *child_name) {
+  ::ptrace(PTRACE_TRACEME);
+  return (::execl((char *)child_name, (char *)child_name, NULL));
 }
 
 int32_t
 run_and_pause(std::string const& child_name) {
     int32_t     _child_pid;
     int32_t     status;
+    char	*stack;
+    char	*stack_beginning;
 
-    if ((_child_pid = fork()) == 0) {
-        exec_child(child_name);
-    } else if (_child_pid > 0) {
-        ::waitpid(_child_pid, &status, 0);
-        return _child_pid;
+    if (!(stack = (char *)::malloc(STACK_SIZE)))
+      ::exit(EXIT_FAILURE);
+
+    // because the stack grows downwards :)
+    stack_beginning = stack + STACK_SIZE;
+
+    if ((_child_pid = ::clone(exec_child, stack_beginning,
+			      SIGCHLD, (void *)child_name.c_str())) != -1) {
+      ::waitpid(_child_pid, &status, 0);
+      return _child_pid;
     } else {
-        std::cerr << "error while forking" << std::endl;
-        exit(1);
+      std::cerr << "error while clone()ing" << std::endl;
+      exit(1);
     }
     return _child_pid;
 }

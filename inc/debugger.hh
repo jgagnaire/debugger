@@ -20,6 +20,8 @@
 # include <iterator>
 # include <cstdlib>
 
+# define STACK_SIZE (1024 * 1024)
+
 void        set_breakpoint(int32_t pid, uint64_t addr);
 int32_t     unset_breakpoint(int32_t pid, uint64_t addr);
 int32_t     run_and_pause(std::string const& name); 
