@@ -21,7 +21,7 @@ int main(int, char **av)
     {"run", "kill", "quit", "set",
         "break", "delete", "print",
         "printreg", "setreg", "backtrace",
-        "help"};
+        "help", "next"};
 
     if (!av[1])
     {
@@ -119,6 +119,11 @@ int main(int, char **av)
                     break ;
                 case HELP_CMD:
                     std::cout << HELP << std::endl;
+                    std::cout << PROMPT << std::flush;
+                    tmp.clear();
+                    break ;
+                case NEXT_CMD:
+                    next_fct(tmp);
                     std::cout << PROMPT << std::flush;
                     tmp.clear();
                     break ;

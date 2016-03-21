@@ -8,7 +8,7 @@
 # include <list>
 # include <map>
 
-# define CMD_NB 11
+# define CMD_NB 12
 # define RUN_CMD 0
 # define KILL_CMD 1
 # define QUIT_CMD 2
@@ -20,6 +20,7 @@
 # define SETREG_CMD 8
 # define BACKTRACE_CMD 9
 # define HELP_CMD 10
+# define NEXT_CMD 11
 
 # define PROMPT "[GueulDeBoua] "
 # define EOPENFILE "impossible d'ouvrir le fichier"
@@ -53,5 +54,6 @@ void print_fct(std::string const&);
 void printreg_fct(std::string const&);
 void setreg_fct(std::string const&);
 void backtrace_fct(std::string const&);
+void next_fct(std::string const &); 
 
 #endif /* !GUEULDEBOUA_H_ */

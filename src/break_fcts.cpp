@@ -6,14 +6,22 @@ static struct user_regs_struct  _regs;
 
 int32_t
 check_for_breakpoint(int32_t _child_pid) {
-   uint64_t to_restore;
+   uint64_t         to_restore;
+   int32_t          status;
+   static int64_t    already_reached(0);
    ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
    if (_breakpoint_map.find(_regs.rip - 1) == _breakpoint_map.end()) {
         return 2;
+   } else if ((_regs.rip - 1) != already_reached) {
+       already_reached = _regs.rip - 1;
+       unset_breakpoint(_child_pid, _regs.rip - 1);
+       ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
+       std::cout << "0x" << std::hex << _regs.rip << std::dec << std::endl; 
+       ::ptrace(PTRACE_SINGLESTEP, _child_pid, 0, 0);
+       wait(&status);
+       return 0;
    } else {
-    std::cout << "you've reached the breakpoint at the address 0x"
-        << std:: hex << _regs.rip - 1
-        << std::dec << std::endl;
+       return 1;
    }
 }
 
@@ -52,10 +60,11 @@ unset_breakpoint(int32_t _child_pid, uint64_t addr) {
     }
     // check regs to see if you're on the right step
     ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
-    if (_regs.rip == (unsigned long) addr + 1) {
+    if (_regs.rip == (uint64_t) addr + 1) {
         ::ptrace(PTRACE_POKETEXT, _child_pid, addr, to_restore);
         _regs.rip -= 1;
         ::ptrace(PTRACE_SETREGS, _child_pid, 0, &_regs);
+        _breakpoint_map.erase(addr);
         return 1;
     }
     return 0;

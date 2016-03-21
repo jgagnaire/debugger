@@ -9,7 +9,10 @@ run_tracee(int32_t _child_pid) {
 
 void
 singlestep_tracee(int32_t _child_pid) {
+    static struct user_regs_struct  _regs;
     std::cout << "sending singlestep instruction" << std::endl;
     if (ptrace(PTRACE_SINGLESTEP, _child_pid, 0, 0) < 0)
         std::cerr << "error trying to run the tracee" << std::endl;
+    ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
+    std::cout << "0x" << std::hex << _regs.rip << std::dec << std::endl; 
 }

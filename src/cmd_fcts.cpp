@@ -38,7 +38,7 @@ void break_fct(std::string const& cmd)
 }
 
 void next_fct(std::string const&) {
-    
+    singlestep_tracee(_child_pid);    
 }
 
 void delete_fct(std::string const&)

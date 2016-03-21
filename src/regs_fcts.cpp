@@ -16,7 +16,8 @@ std::map<std::string, int> regs_list = {
     {"r12", 12},
     {"r13", 13},
     {"r14", 14},
-    {"r15", 15}
+    {"r15", 15},
+    {"rip", 16}
 };
 
 static struct user_regs_struct _regs;
@@ -74,6 +75,8 @@ setreg(int32_t _child_pid, std::string const& reg, int64_t value) {
         case 15:
             _regs.r15 = value;
             break;
+        case 16:
+            _regs.rip = value;
         default:
             return -1;
     }
@@ -132,6 +135,9 @@ printreg(int32_t _child_pid, std::string const& reg) {
             break;
         case 15:
             std::cout << reg << " = " << std::hex << "0x" << _regs.r15;
+            break;
+        case 16:
+            std::cout << reg << " = " << std::hex << "0x" << _regs.rip;
             break;
         default:
             return -1;
