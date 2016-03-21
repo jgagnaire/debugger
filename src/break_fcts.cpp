@@ -1,3 +1,4 @@
+#include "gueuldeboua.hh"
 #include "debugger.hh"
 
 std::map<uint64_t, uint64_t>    _breakpoint_map;
@@ -16,7 +17,8 @@ check_for_breakpoint(int32_t _child_pid) {
        already_reached = _regs.rip - 1;
        unset_breakpoint(_child_pid, _regs.rip - 1);
        ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
-       std::cout << "0x" << std::hex << _regs.rip << std::dec << std::endl; 
+       std::cout << std::endl << "Breakpoint at 0x" << std::hex
+		 << _regs.rip << std::dec << std::endl << PROMPT << std::flush;
        ::ptrace(PTRACE_SINGLESTEP, _child_pid, 0, 0);
        wait(&status);
        return 0;

@@ -8,6 +8,7 @@ int         iwanta_locsection() {
 
 int         calculate(int param) {
     int     i = 2, j = 2;
+    param = param;
     return param + i + j;
 }
 
