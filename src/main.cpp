@@ -62,8 +62,8 @@ int main(int, char **av)
                 break ;
             }
         }
-            if (tmp.empty())
-                continue ;
+	if (tmp.empty())
+	  continue ;
 
             unsigned long a, i = tmp.find(" ");
             std::string cmd = tmp.substr(0, i == std::string::npos ? tmp.size() : i);
