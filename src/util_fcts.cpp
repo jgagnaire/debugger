@@ -35,10 +35,9 @@ print_localvar(int32_t _child_pid, int32_t offset_breg6) {
     return var_value;
 }
 
-int32_t
+int64_t
 print_paramvar(int32_t _child_pid) {
     struct user_regs_struct _regs;
     ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
-    std::cout << "the parameter value is: " << _regs.rdi << std::endl;
-    return 0;
+    return _regs.rdi;
 }

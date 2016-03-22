@@ -31,6 +31,6 @@ int32_t     check_for_breakpoint(int32_t);
 void        run_tracee(int32_t pid);
 void        singlestep_tracee(int32_t pid);
 void        printaddr(uint32_t pid, uint64_t addr);
-int32_t     print_localvar(int32_t pid, int32_t offset, int32_t offset_fbreg);
-int32_t     print_paramvar(int32_t pid);
+int32_t     print_localvar(int32_t pid, int32_t offset);
+int64_t     print_paramvar(int32_t pid);
 
