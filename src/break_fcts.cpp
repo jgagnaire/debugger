@@ -7,9 +7,8 @@ static struct user_regs_struct  _regs;
 
 int32_t
 check_for_breakpoint(int32_t _child_pid) {
-   uint64_t         to_restore;
    int32_t          status;
-   static int64_t    already_reached(0);
+   static uint64_t    already_reached(0);
    ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
    if (_breakpoint_map.find(_regs.rip - 1) == _breakpoint_map.end()) {
         return 2;
