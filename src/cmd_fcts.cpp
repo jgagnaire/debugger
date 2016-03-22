@@ -55,7 +55,9 @@ void delete_fct(std::string const& cmd) {
     fctaddr = get_globalsym_addr(cmd.substr(i + 1), &error);
     if (error == -1)
         return ;
-    std::cout << unset_breakpoint(_child_pid, fctaddr) << std::endl;
+   if (unset_breakpoint(_child_pid, fctaddr) == 1)
+       std::cout << "Sucessfully deleted breakpoint at address 0x"
+           << std::hex << fctaddr << std::dec << std::endl;
 }
 
 void print_fct(std::string const& cmd)
