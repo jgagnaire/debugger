@@ -6,12 +6,12 @@ int         iwanta_locsection() {
     return 0;
 }
 
-int         calculate(void) {
+int         calculate(int param) {
     int     i = 2, j = 2;
-    return i + j;
+    return param + i + j;
 }
 
 int         main() {
-    printf("Hello, World ! %d\n", calculate());
+    printf("Hello, World ! %d\n", calculate(0));
     return 0;
 }
