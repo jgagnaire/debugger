@@ -69,26 +69,31 @@ void print_fct(std::string const& cmd)
         return ;
 
     try {
-        if (!(y = (!((*(it + 3)).compare("local")) ?
-                        x->variables_map.at(*(it + 2))
-                        : x->params_map.at(*(it + 2)))))
-            throw std::exception();
+      if (!(y = (!((*(it + 3)).compare("local")) ?
+		 x->variables_map.at(*(it + 2))
+		 : x->params_map.at(*(it + 2)))))
+	throw std::exception();
     }
     catch (...) {
-        std::cout << "variable non trouvee, verifie que le binaire "
-            << "a debogguer soit compile avec -fvar-tracking !" << std::endl;
-        return ;
+      if (!((*(it + 3)).compare("param")))
+	{
+	  print_localvar(_child_pid, y->rbp_offset, y->fbreg_offset);
+	  goto print_label;
+	}
+      std::cout << "variable non trouvee, verifie que le binaire "
+		<< "a debogguer soit compile avec -fvar-tracking !" << std::endl;
+      return ;
     }
 
-   std::cout << std::endl
-        << "variable '" << *(it + 2) << "' dans la fonction '" << *(it + 1)
-        << "' à l'adresse " << "0x" << std::hex << (uint64_t)x->func_addr
-        << std::dec << ":" << std::endl
-        << "\t=> offset avec rbp (breg6): " << y->rbp_offset << std::endl
-        << "\t=> offset avec l'adresse de '" << *(it + 1)
-        << "'" << " (fbreg): " << y->fbreg_offset << std::endl;
-   //print_localvar(_child_pid, y->rbp_offset, y->fbreg_offset);
-   print_paramvar(_child_pid);
+ print_label:
+    std::cout << std::endl
+	      << "variable '" << *(it + 2) << "' dans la fonction '" << *(it + 1)
+	      << "' à l'adresse " << "0x" << std::hex << (uint64_t)x->func_addr
+	      << std::dec << ":" << std::endl
+	      << "\t=> offset avec rbp (breg6): " << y->rbp_offset << std::endl
+	      << "\t=> offset avec l'adresse de '" << *(it + 1)
+	      << "'" << " (fbreg): " << y->fbreg_offset << std::endl;
+    print_paramvar(_child_pid);
 }
 
 void
