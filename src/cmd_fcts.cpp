@@ -87,6 +87,8 @@ void print_fct(std::string const& cmd)
         << "\t=> offset avec rbp (breg6): " << y->rbp_offset << std::endl
         << "\t=> offset avec l'adresse de '" << *(it + 1)
         << "'" << " (fbreg): " << y->fbreg_offset << std::endl;
+   //print_localvar(_child_pid, y->rbp_offset, y->fbreg_offset);
+   print_paramvar(_child_pid);
 }
 
 void

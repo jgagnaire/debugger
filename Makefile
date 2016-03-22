@@ -7,6 +7,7 @@ RM				=		rm -f
 MKDIR			=		mkdir -p
 
 CFLAGS			:= 		-Wall -Wextra -Iinc/ -ggdb -std=c++11
+CDEBUGFLAGS		:=		-g -fvar-tracking
 LDFLAGS			:=		-ldwarf -lelf
 
 NAME			=		gueuldeboua
