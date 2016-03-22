@@ -1,5 +1,5 @@
 
-char *func_bite(char bite_param_lel)
+char *func_bite(int bite_param_lel)
 {
   int bite_variable1;
 

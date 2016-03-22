@@ -30,7 +30,7 @@ int32_t
 print_localvar(int32_t _child_pid, int32_t offset_breg6) {
     struct user_regs_struct _regs;
     ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
-    int64_t var_addr = _regs.rbp + offset_breg6; // + offset_fbreg; 
+    int64_t var_addr = _regs.rbp + offset_breg6;
     int32_t var_value = ::ptrace(PTRACE_PEEKTEXT, _child_pid, var_addr, 0);
     return var_value;
 }

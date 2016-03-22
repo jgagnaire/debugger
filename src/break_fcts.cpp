@@ -27,17 +27,6 @@ check_for_breakpoint(int32_t _child_pid) {
    }
 }
 
-/*
-   void
-   next_step(int32_t _child_pid) {
-   ::ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
-   check_for_breakpoint(_child_pid, _regs.rip);
-   ::ptrace(PTRACE_SINGLESTEP, _child_pid, 0, 0);
-   std::cout << "current instruction is 0x"
-   << std::hex << _regs.rip << std::dec
-   << std::endl;
-   }
-*/
 void
 set_breakpoint(int32_t _child_pid, uint64_t addr) {
     uint64_t    data = 0;

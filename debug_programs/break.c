@@ -12,6 +12,6 @@ int         calculate(int p) {
 }
 
 int         main() {
-    printf("Hello, World ! %d\n", calculate(0));
+    printf("Hello, World ! %d\n", calculate(4));
     return 0;
 }
