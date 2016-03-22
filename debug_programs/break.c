@@ -6,9 +6,9 @@ int         iwanta_locsection() {
     return 0;
 }
 
-int         calculate(int param) {
+int         calculate(int p) {
     int     i = 2, j = 2;
-    return param + i + j;
+    return p + i + j;
 }
 
 int         main() {
