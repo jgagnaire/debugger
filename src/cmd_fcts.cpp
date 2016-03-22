@@ -41,9 +41,21 @@ void next_fct(std::string const&) {
     singlestep_tracee(_child_pid);    
 }
 
-void delete_fct(std::string const&)
-{
-    std::cout << "commande: [delete] (et lekouy aussi)" << std::endl;
+void delete_fct(std::string const& cmd) {
+    unsigned long i;
+    Elf64_Word fctaddr;
+    int error;
+
+    if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() - 1)
+    {
+        std::cout << "file le nom de la fonction à laquelle tu veux breaker"
+            << std::endl;
+        return ;
+    }
+    fctaddr = get_globalsym_addr(cmd.substr(i + 1), &error);
+    if (error == -1)
+        return ;
+    std::cout << unset_breakpoint(_child_pid, fctaddr) << std::endl;
 }
 
 void print_fct(std::string const& cmd)
@@ -92,8 +104,8 @@ void print_fct(std::string const& cmd)
         << std::dec << ":" << std::endl;
     if (y != NULL) {
         std::cout << "\t=> offset avec rbp (breg6): " << y->rbp_offset << std::endl
-            << "\t=> offset avec l'adresse de '" << *(it + 1)
-            << "'" << " (fbreg): " << y->fbreg_offset << std::endl << std::endl;
+        << "\t=> offset avec l'adresse de '" << *(it + 1)
+        << "'" << " (fbreg): " << y->fbreg_offset << std::endl << std::endl;
     }
     std::cout << "and value is " << ret_value << std::endl;
 }

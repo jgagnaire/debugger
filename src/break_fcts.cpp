@@ -56,6 +56,10 @@ unset_breakpoint(int32_t _child_pid, uint64_t addr) {
         ::ptrace(PTRACE_SETREGS, _child_pid, 0, &_regs);
         _breakpoint_map.erase(addr);
         return 1;
+    } else {
+        ::ptrace(PTRACE_POKETEXT, _child_pid, addr, to_restore);
+        _breakpoint_map.erase(addr);
+        return 1;
     }
     return 0;
 }
