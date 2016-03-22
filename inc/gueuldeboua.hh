@@ -7,25 +7,23 @@
 # include <list>
 # include <map>
 
-# define CMD_NB 12
+# define CMD_NB 10
 # define RUN_CMD 0
-# define KILL_CMD 1
-# define QUIT_CMD 2
-# define SET_CMD 3
-# define BREAK_CMD 4
-# define DELETE_CMD 5
-# define PRINT_CMD 6
-# define PRINTREG_CMD 7
-# define SETREG_CMD 8
-# define HELP_CMD 9
-# define NEXT_CMD 10
-# define PRINTADDR_CMD 11
+# define QUIT_CMD 1
+# define BREAK_CMD 2
+# define DELETE_CMD 3
+# define PRINT_CMD 4
+# define PRINTREG_CMD 5
+# define SETREG_CMD 6
+# define HELP_CMD 7
+# define NEXT_CMD 8
+# define PRINTADDR_CMD 9
 
 # define PROMPT "[GueulDeBoua] "
 # define EOPENFILE "impossible d'ouvrir le fichier"
 # define USAGE "Usage: ./GueulDeBoua programme_a_deboguer"
 # define CNF "commande inexistante, tape help si t'es perdu"
-# define HELP "commandes possibles: run, kill, quit, set, break, delete, print, printreg, setreg, backtrace, help"
+# define HELP "commandes possibles: run, quit, break, delete, print, printreg, setreg, help"
 
 struct var_struct
 {

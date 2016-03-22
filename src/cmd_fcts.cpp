@@ -12,11 +12,6 @@ void run_fct(std::string const&)
     run_tracee(_child_pid);
 }
 
-void set_fct(std::string const&)
-{
-    std::cout << "commande: [set] (et leusex aussi)" << std::endl;
-}
-
 void break_fct(std::string const& cmd)
 {
     unsigned long i;
@@ -144,9 +139,4 @@ void setreg_fct(std::string const& cmd)
     std::vector<std::string>    cmd_vector(begin, end);
     std::vector<std::string>::iterator it(cmd_vector.begin());
     setreg(_child_pid, *(it + 1), std::atoi((*(it + 2)).c_str()));
-}
-
-void backtrace_fct(std::string const&)
-{
-    std::cout << "commande: [backtrace] (et leuku aussi)" << std::endl;
 }

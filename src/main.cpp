@@ -18,10 +18,9 @@ int _child_pid;
 int main(int, char **av)
 {
     static const std::string cmd_tab[CMD_NB] =
-      {"run", "kill", "quit", "set",
-       "break", "delete", "print",
-       "printreg", "setreg", "help",
-       "next", "printaddr"};
+      {"run", "quit", "break", "delete",
+       "print", "printreg", "setreg",
+       "help", "next", "printaddr"};
 
     if (!av[1])
     {
@@ -82,11 +81,6 @@ int main(int, char **av)
                     break ;
                 case QUIT_CMD:
 		  goto exit_label;
-                case KILL_CMD:
-		  set_fct(tmp);
-                    std::cout << PROMPT << std::flush;
-                    tmp.clear();
-                    break ;
                 case BREAK_CMD:
                     break_fct(tmp);
                     std::cout << PROMPT << std::flush;
