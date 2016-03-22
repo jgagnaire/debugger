@@ -87,61 +87,62 @@ setreg(int32_t _child_pid, std::string const& reg, int64_t value) {
 int32_t
 printreg(int32_t _child_pid, std::string const& reg) {
     ptrace(PTRACE_GETREGS, _child_pid, 0, &_regs);
+    std::cout << std::hex << _regs.rbp << std::endl;
     switch (regs_list[reg]) {
         case 0:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rax;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rax;
             break;
         case 1:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rbx;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rbx;
             break;
         case 2:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rcx;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rcx;
             break;
         case 3:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rdx;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rdx;
             break;
         case 4:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rsi;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rsi;
             break;
         case 5:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rdi;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rdi;
             break;
         case 6:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rbp;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rbp;
             break;
         case 7:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rsp;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rsp;
             break;
         case 8:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r8;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r8;
             break;
         case 9:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r9;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r9;
             break;
         case 10:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r10;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r10;
             break;
         case 11:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r11;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r11;
             break;
         case 12:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r12;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r12;
             break;
         case 13:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r13;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r13;
             break;
         case 14:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r14;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r14;
             break;
         case 15:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.r15;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.r15;
             break;
         case 16:
-            std::cout << reg << " = " << std::hex << "0x" << _regs.rip;
+            std::cout << reg << " = " << "0x" << std::hex << _regs.rip;
             break;
         default:
             return -1;
     }
-    std::cout << std::hex << std::endl;
+    std::cout << std::endl;
     return 0;
 }

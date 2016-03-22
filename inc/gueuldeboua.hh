@@ -1,5 +1,4 @@
-#ifndef GUEULDEUBOUA_H_
-# define GUEULDEUBOUA_H_
+#pragma once
 
 # include <libdwarf.h>
 # include <elf.h>
@@ -8,7 +7,7 @@
 # include <list>
 # include <map>
 
-# define CMD_NB 12
+# define CMD_NB 13
 # define RUN_CMD 0
 # define KILL_CMD 1
 # define QUIT_CMD 2
@@ -21,6 +20,7 @@
 # define BACKTRACE_CMD 9
 # define HELP_CMD 10
 # define NEXT_CMD 11
+# define PRINTADDR_CMD 12
 
 # define PROMPT "[GueulDeBoua] "
 # define EOPENFILE "impossible d'ouvrir le fichier"
@@ -55,5 +55,4 @@ void printreg_fct(std::string const&);
 void setreg_fct(std::string const&);
 void backtrace_fct(std::string const&);
 void next_fct(std::string const &); 
-
-#endif /* !GUEULDEBOUA_H_ */
+void printaddr_fct(std::string const&);

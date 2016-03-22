@@ -89,6 +89,17 @@ void print_fct(std::string const& cmd)
         << "'" << " (fbreg): " << y->fbreg_offset << std::endl;
 }
 
+void
+printaddr_fct(std::string const& cmd) {
+    uint64_t    i;
+
+    if ((i = cmd.find(" ")) == std::string::npos or i == cmd.size() -1) {
+        return ;
+    }
+    std::string addr(cmd.substr(i + 1));
+    printaddr(_child_pid, std::stol(addr, 0, 16));
+}
+
 void printreg_fct(std::string const& cmd)
 {
     uint64_t    i;

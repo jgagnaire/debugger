@@ -21,7 +21,7 @@ int main(int, char **av)
     {"run", "kill", "quit", "set",
         "break", "delete", "print",
         "printreg", "setreg", "backtrace",
-        "help", "next"};
+        "help", "next", "printaddr"};
 
     if (!av[1])
     {
@@ -124,6 +124,11 @@ int main(int, char **av)
                     break ;
                 case NEXT_CMD:
                     next_fct(tmp);
+                    std::cout << PROMPT << std::flush;
+                    tmp.clear();
+                    break ;
+                case PRINTADDR_CMD:
+                    printaddr_fct(tmp);
                     std::cout << PROMPT << std::flush;
                     tmp.clear();
                     break ;
