@@ -137,5 +137,5 @@ void setreg_fct(std::string const& cmd)
     std::istream_iterator<std::string> end;
     std::vector<std::string>    cmd_vector(begin, end);
     std::vector<std::string>::iterator it(cmd_vector.begin());
-    setreg(_child_pid, *(it + 1), std::stol(*(it + 2), 0, 10);
+    setreg(_child_pid, *(it + 1), std::stol(*(it + 2), 0, 10));
 }
