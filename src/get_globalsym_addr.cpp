@@ -21,7 +21,7 @@ static char *get_strtab(Elf64_Shdr *section_header_table, int *error)
       || ::lseek(file_fd, section_header_table[save_strtab_idx].sh_offset, SEEK_SET) == -1
       || ::read(file_fd, strtab, section_header_table[save_strtab_idx].sh_size) <= 0)
     {
-      std::cout << "fichier invalide ou impossible d'allouer de la memoire" << std::endl;
+      std::cerr << "calloc(), lseek() or read() failed" << std::endl;
       *error = -1;
       return (0);
     }
@@ -38,7 +38,7 @@ static Elf64_Shdr *get_section_header_table(Elf64_Ehdr *header, int *error)
     {
       if (::read(file_fd, &section_header_table[i], sizeof(Elf64_Shdr)) <= 0)
         {
-	  std::cout << "fichier invalide" << std::endl;
+	  std::cerr << "invalid file" << std::endl;
 	  *error = -1;
 	  return (0);
 	}
@@ -61,7 +61,7 @@ static int fill_header(Elf64_Ehdr *header, int *error)
       || !header->e_shoff
       || ::lseek(file_fd, header->e_shoff, SEEK_SET) == -1)
     {
-      std::cout << "fichier invalide" << std::endl;
+      std::cerr << "invalid file" << std::endl;
       *error = -1;
       return (-1);
     }
@@ -78,7 +78,7 @@ static int get_symtab_and_fill_map(char *strtab,
       || !(symtab = (Elf64_Sym *)::calloc(section_header_table[save_symtab_idx].sh_size
 					  / sizeof(Elf64_Sym), sizeof(Elf64_Sym))))
     {
-      std::cout << "fichier invalide ou impossible d'allouer de la memoire" << std::endl;
+      std::cerr << "lseek() or calloc() failed" << std::endl;
       *error = -1;
       return (-1);
     }
@@ -88,7 +88,7 @@ static int get_symtab_and_fill_map(char *strtab,
     {
       if (::read(file_fd, &symtab[i], sizeof(Elf64_Sym)) <= 0)
         {
-	  std::cout << "fichier invalide" << std::endl;
+	  std::cerr << "invalid file" << std::endl;
 	  *error = -1;
 	  return (-1);
 	}
@@ -123,8 +123,7 @@ Elf64_Word get_globalsym_addr(std::string const &sym_name, int *error)
     return (global_symaddr_map.at(sym_name).st_value);
   }
   catch (...) {
-    std::cout << "file une fonction qui existe, ca marchera probablement un peu mieux"
-	      << std::endl;
+    std::cout << "function not found" << std::endl;
     *error = -1;
     return (0);
   }

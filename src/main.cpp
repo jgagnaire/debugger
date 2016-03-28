@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 
-#include "gueuldeboua.hh"
+#include "my_gdb.hh"
 #include "debugger.hh"
 
 int file_fd;
@@ -29,7 +29,7 @@ int main(int, char **av)
     }
     if ((file_fd = ::open(av[1], O_RDONLY, 0644)) == -1)
     {
-        std::cout << EOPENFILE << std::endl;
+        std::cerr << EOPENFILE << std::endl;
         return (-1);
     }
 

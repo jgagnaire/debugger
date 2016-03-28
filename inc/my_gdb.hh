@@ -19,11 +19,11 @@
 # define NEXT_CMD 8
 # define PRINTADDR_CMD 9
 
-# define PROMPT "[GueulDeBoua] "
+# define PROMPT "[my_gdb] "
 # define EOPENFILE "impossible d'ouvrir le fichier"
-# define USAGE "Usage: ./GueulDeBoua programme_a_deboguer"
-# define CNF "commande inexistante, tape help si t'es perdu"
-# define HELP "commandes possibles: run, quit, break, delete, print, printreg, setreg, help"
+# define USAGE "Usage: ./my_gdb program_to_debug"
+# define CNF "command not found, type 'help' if needed"
+# define HELP "implemented commands: run, quit, break, delete, print, printreg, setreg, help"
 
 struct var_struct
 {

@@ -11,7 +11,7 @@
 #include <dwarf.h>
 #include <elf.h>
 
-#include "gueuldeboua.hh"
+#include "my_gdb.hh"
 
 extern int file_fd;
 extern Elf64_Ehdr header;
@@ -72,7 +72,7 @@ static func_struct *create_func_struct(Dwarf_Die die, char *name)
 	  }
       else if (ret == DW_DLV_ERROR)
 	{
-	  std::cout << "dwarf_whatattr() failed" << std::endl;
+	  std::cerr << "dwarf_whatattr() failed" << std::endl;
 	  return (0);
 	}
     }
@@ -123,7 +123,7 @@ static var_struct *create_var_struct(Dwarf_Die die)
 	}
       else if (ret == DW_DLV_ERROR)
 	{
-	  std::cout << "dwarf_whatattr() failed" << std::endl;
+	  std::cerr << "dwarf_whatattr() failed" << std::endl;
 	  return (0);
 	}
     }
@@ -142,12 +142,12 @@ static void get_die_data(Dwarf_Die die, int level)
     case DW_DLV_NO_ENTRY:
       return ;
     case DW_DLV_ERROR:
-      std::cout << "dwarf_diename() failed, at level " << level << std::endl;
+      std::cerr << "dwarf_diename() failed, at level " << level << std::endl;
       return ;
     }
   if (::dwarf_tag(die, &tag, &error) != DW_DLV_OK)
     {
-      std::cout << "dwarf_tag() failed, at level " << level << std::endl;
+      std::cerr << "dwarf_tag() failed, at level " << level << std::endl;
       return ;
     }
   switch (tag)
@@ -178,7 +178,7 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
       switch (::dwarf_child(cur_die, &child, &error))
 	{
 	case DW_DLV_ERROR:
-	  std::cout << "dwarf_child() failed" << std::endl;
+	  std::cerr << "dwarf_child() failed" << std::endl;
 	  return (-1);
 	case DW_DLV_OK:
 	  get_die_and_siblings(dbg, child, level + 1);
@@ -189,7 +189,7 @@ static int get_die_and_siblings(Dwarf_Debug dbg, Dwarf_Die in_die, int level)
 	case DW_DLV_NO_ENTRY:
 	  return (0);
 	case DW_DLV_ERROR:
-	  std::cout << "dwarf_siblingof() failed" << std::endl;
+	  std::cerr << "dwarf_siblingof() failed" << std::endl;
 	  return (-1);
 	}
       if (cur_die != in_die)
@@ -214,7 +214,7 @@ static int read_cu_list(Dwarf_Debug dbg)
 				     &error))
 	{
 	case DW_DLV_ERROR:
-	  std::cout << "dwarf_next_cu_header() failed" << std::endl;
+	  std::cerr << "dwarf_next_cu_header() failed" << std::endl;
 	  return (-1);
 	case DW_DLV_NO_ENTRY:
 	  return (0);
@@ -222,10 +222,10 @@ static int read_cu_list(Dwarf_Debug dbg)
       switch (::dwarf_siblingof(dbg, 0, &cu_die, &error))
 	{
 	case DW_DLV_ERROR:
-	  std::cout << "dwarf_sibling_of() failed" << std::endl;
+	  std::cerr << "dwarf_sibling_of() failed" << std::endl;
 	  return (-1);
 	case DW_DLV_NO_ENTRY:
-	  std::cout << "no entry in dwarf_siblingof()" << std::endl;
+	  std::cerr << "no entry in dwarf_siblingof()" << std::endl;
 	  return (-1);
 	}
       if (get_die_and_siblings(dbg, cu_die, 0) == -1)
@@ -246,7 +246,7 @@ func_struct *get_func_struct(std::string const &fctname)
       || ::dwarf_init(file_fd, DW_DLC_READ, 0, 0, &dbg, &error) != DW_DLV_OK
       || read_cu_list(dbg) == -1)
     {
-      std::cout << "fichier invalide" << std::endl;
+      std::cerr << "invalid file" << std::endl;
       return (0);
     }
   ::dwarf_finish(dbg, &error);
@@ -256,7 +256,7 @@ func_struct *get_func_struct(std::string const &fctname)
     return (die_map.at(fctname));
   }
   catch (...) {
-    std::cout << "file des trucs qui existent, sinon c'est chiant" << std::endl;
+    std::cerr << "invalid parameters" << std::endl;
     return (0);
   }
 }
